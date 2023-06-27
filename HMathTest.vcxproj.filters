@@ -13,24 +13,5 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="源文件\Utils">
-      <UniqueIdentifier>{cd7f92d7-e149-4d6a-af46-85a0086953a7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\Vector">
-      <UniqueIdentifier>{c697ed20-9a4f-4809-aa49-88094e376567}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\HMath.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Utils\CompareUtils.h">
-      <Filter>源文件\Utils</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\Vertor\Vector2.cpp">
-      <Filter>源文件\Vector</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HMath", "HMath.vcxproj", "{EF185830-D4EA-45D2-917A-EB72C7606A67}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HMathTest", "..\HMathTest\HMathTest.vcxproj", "{E337C1CB-8109-4C7C-BEB5-0CE99D311222}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HMathTest", "HMathTest.vcxproj", "{E337C1CB-8109-4C7C-BEB5-0CE99D311222}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
