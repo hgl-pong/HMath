@@ -32,5 +32,11 @@
     <ClCompile Include="src\Vertor\Vector2.cpp">
       <Filter>源文件\Vector</Filter>
     </ClCompile>
+    <ClCompile Include="src\HMath.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Vertor\Vector3.cpp">
+      <Filter>源文件\Vector</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
