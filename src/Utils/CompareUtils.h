@@ -4,7 +4,7 @@ namespace HMath
 {
     inline bool isZero(HFloat number)
     {
-        return std::abs(number) <= HFLOAT_EPSILON;
+        return std::abs(number) <= FLOAT_EPSILON;
     }
 
     inline bool isEqual(HFloat a, HFloat b)
@@ -22,4 +22,4 @@ namespace HMath
         return isWeakZero(a - b);
     }
 
-} // namespace FFLOAT
+} // namespace HMath
