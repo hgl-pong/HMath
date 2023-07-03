@@ -119,7 +119,7 @@ HVector2f BarycentricCoordinates(const HVector2f &a, const HVector2f &b, const H
     auto dot11 = v1.Dot(v1);
     auto dot12 = v1.Dot(v2);
 
-    auto invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01);
+    auto invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
     auto alpha = (dot11 * dot02 - dot01 * dot12) * invDenom;
     auto beta = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
