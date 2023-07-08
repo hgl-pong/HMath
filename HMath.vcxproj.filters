@@ -16,7 +16,7 @@
     <Filter Include="源文件\Utils">
       <UniqueIdentifier>{cd7f92d7-e149-4d6a-af46-85a0086953a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Vector">
+    <Filter Include="源文件\Core">
       <UniqueIdentifier>{c697ed20-9a4f-4809-aa49-88094e376567}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -27,16 +27,28 @@
     <ClInclude Include="src\Utils\CompareUtils.h">
       <Filter>源文件\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\Utils\TransformUtils.h">
+      <Filter>源文件\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Vertor\Vector2.cpp">
-      <Filter>源文件\Vector</Filter>
-    </ClCompile>
     <ClCompile Include="src\HMath.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Vertor\Vector3.cpp">
-      <Filter>源文件\Vector</Filter>
+    <ClCompile Include="src\Core\Transform.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Quat.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Mat44.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Vector2.cpp">
+      <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Vector3.cpp">
+      <Filter>源文件\Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

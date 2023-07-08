@@ -140,11 +140,15 @@
   <ItemGroup>
     <ClInclude Include="include\HMath.h" />
     <ClInclude Include="src\Utils\CompareUtils.h" />
+    <ClInclude Include="src\Utils\TransformUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Mat44.cpp" />
+    <ClCompile Include="src\Core\Transform.cpp" />
+    <ClCompile Include="src\Core\Quat.cpp" />
+    <ClCompile Include="src\Core\Vector2.cpp" />
+    <ClCompile Include="src\Core\Vector3.cpp" />
     <ClCompile Include="src\HMath.cpp" />
-    <ClCompile Include="src\Vertor\Vector2.cpp" />
-    <ClCompile Include="src\Vertor\Vector3.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
