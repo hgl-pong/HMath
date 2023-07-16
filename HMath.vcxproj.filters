@@ -19,6 +19,9 @@
     <Filter Include="源文件\Core">
       <UniqueIdentifier>{c697ed20-9a4f-4809-aa49-88094e376567}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Utils">
+      <UniqueIdentifier>{6ed568ed-dab5-4cc2-bfc2-eec1b6dc0d33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\HMath.h">
@@ -29,6 +32,9 @@
     </ClInclude>
     <ClInclude Include="src\Utils\TransformUtils.h">
       <Filter>源文件\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utils\HashUtils.h">
+      <Filter>头文件\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

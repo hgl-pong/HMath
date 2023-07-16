@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\HMath.h" />
+    <ClInclude Include="include\Utils\HashUtils.h" />
     <ClInclude Include="src\Utils\CompareUtils.h" />
     <ClInclude Include="src\Utils\TransformUtils.h" />
   </ItemGroup>
