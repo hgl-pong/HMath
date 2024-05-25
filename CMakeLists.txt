@@ -16,11 +16,20 @@ file(GLOB SOURCE_FILES
 add_executable(${MY_TARGET} ${SOURCE_FILES})
 
 find_package(Eigen3 CONFIG REQUIRED)
+find_package(GTest CONFIG REQUIRED)
 set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
 target_include_directories(${MY_TARGET} PUBLIC ./include
     PRIVATE)
 
 # Link the required libraries
 target_link_libraries(${MY_TARGET} PRIVATE
-    Eigen3::Eigen
+    Eigen3::Eigen   
+    GTest::gtest 
+    GTest::gtest_main 
+    GTest::gmock 
+    GTest::gmock_main
 )
+
+enable_testing()
+add_test(AllTestsInMain main)
+
