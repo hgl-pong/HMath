@@ -23,16 +23,16 @@ namespace MathLib
                 const HReal farClip = m_Camera.GetFarClip();
                 const HReal fov = m_Camera.GetFOV();
 
-                const HReal halfHSide = std::tan(fov / 2 * 4 / 3 * H_PI / 180.f) * farClip;
-                const HReal halfVSide = halfHSide / aspectRatio;
+                const HReal halfHSize = std::tan(fov / 2 * 4 / 3 * H_PI / 180.f) * farClip;
+                const HReal halfVSize = halfHSize / aspectRatio;
                 const HVector3 frontMultFar = dir * farClip;
 
                 m_Planes[FRUSTUM_PLANE_NEAR].Set(eye + dir * nearClip, dir);
                 m_Planes[FRUSTUM_PLANE_FAR].Set(eye + frontMultFar, -dir);
-                m_Planes[FRUSTUM_PLANE_RIGHT].Set(eye, -(frontMultFar + right * halfHSide).cross(up));
-                m_Planes[FRUSTUM_PLANE_LEFT].Set(eye, -up.cross(frontMultFar - right * halfHSide));
-                m_Planes[FRUSTUM_PLANE_TOP].Set(eye, -right.cross(frontMultFar + up * halfVSide));
-                m_Planes[FRUSTUM_PLANE_BOTTOM].Set(eye, -(frontMultFar - up * halfVSide).cross(right));
+                m_Planes[FRUSTUM_PLANE_RIGHT].Set(eye, -(frontMultFar + right * halfHSize).cross(up));
+                m_Planes[FRUSTUM_PLANE_LEFT].Set(eye, -up.cross(frontMultFar - right * halfHSize));
+                m_Planes[FRUSTUM_PLANE_TOP].Set(eye, -right.cross(frontMultFar + up * halfVSize));
+                m_Planes[FRUSTUM_PLANE_BOTTOM].Set(eye, -(frontMultFar - up * halfVSize).cross(right));
             }
 
             bool IsPointInFrustum(const HVector3& point) const

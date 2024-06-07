@@ -34,7 +34,14 @@ namespace MathLib
 		class Camera
 		{
 		public:
-			Camera(const HVector3& eye, const HVector3& dir, const MathLib::HReal& aspectRatio) : mMouseX(0), mMouseY(0), mSpeed(2.0f), mAspectRatio(aspectRatio)
+			Camera(const HVector3& eye, const HVector3& dir, const MathLib::HReal& aspectRatio,const HReal nearClip=1.f,const HReal farClip=10000.f,const HReal fov=60.f) 
+				: mMouseX(0), 
+				mMouseY(0), 
+				mSpeed(2.0f),
+				mAspectRatio(aspectRatio),
+				mNearClip(nearClip),
+				mFarClip(farClip),
+				mFOV(fov)
 			{
 				mEye = eye;
 				mDir = dir.normalized();
@@ -66,7 +73,7 @@ namespace MathLib
 				_UpdateMatrix();
 				return true;
 			}
-			void handleAnalogMove(int x, int y)
+			void HandleAnalogMove(int x, int y)
 			{
 				HVector3 viewY = mDir.cross(HVector3(0, 1, 0)).normalized();
 				mEye += mDir * y;
