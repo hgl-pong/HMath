@@ -4,23 +4,24 @@
 #include <Math/GraphicUtils/Camara.h>
 namespace MathLib
 {
-	namespace GraphicTools
+	namespace GraphicUtils
 	{
 		class Frustum
 		{
-        Frustum(Camera& camera) : m_Camera(camera)
+        public:
+            Frustum(Camera& camera) : m_Camera(camera)
             {
             }
             void UpdateFrustum()
             {
-                const HVector3& eye = m_Camera.getEye();
-                const HVector3& dir = m_Camera.getDir();
+                const HVector3& eye = m_Camera.GetEye();
+                const HVector3& dir = m_Camera.GetDir();
                 const HVector3& right = HVector3(0, 1, 0).cross(-dir).normalized();
                 const HVector3& up = (-dir).cross(right);
-                const HReal aspectRatio = m_Camera.getAspectRatio();
-                const HReal nearClip = m_Camera.getNearClip();
-                const HReal farClip = m_Camera.getFarClip();
-                const HReal fov = m_Camera.getFOV();
+                const HReal aspectRatio = m_Camera.GetAspectRatio();
+                const HReal nearClip = m_Camera.GetNearClip();
+                const HReal farClip = m_Camera.GetFarClip();
+                const HReal fov = m_Camera.GetFOV();
 
                 const HReal halfHSide = std::tan(fov / 2 * 4 / 3 * H_PI / 180.f) * farClip;
                 const HReal halfVSide = halfHSide / aspectRatio;
@@ -82,7 +83,7 @@ namespace MathLib
 
             const HReal Distance(const HVector3& point) const
             {
-                return (m_Camera.getEye() - point).norm();
+                return (m_Camera.GetEye() - point).norm();
             };
 
         private:
@@ -103,9 +104,10 @@ namespace MathLib
         class CullingManager
         {
         public:
-            CullingManager(MathLib::Camera& camera) : m_Frustum(camera)
+            CullingManager(Camera& camera) : m_Frustum(camera)
             {
             }
+
             void UpdateFrustum()
             {
                 m_Frustum.UpdateFrustum();

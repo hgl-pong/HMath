@@ -5,7 +5,7 @@ namespace MathLib
 {
 	namespace GraphicUtils
 	{
-		HMatrix4 LookAt(const HVector3& eye, const HVector3& target, const HVector3& up) {
+		inline HMatrix4 LookAt(const HVector3& eye, const HVector3& target, const HVector3& up) {
 			const HVector3 backward = (eye - target).normalized();
 			const HVector3 right = up.cross(backward).normalized();
 			const HVector3 realUp = backward.cross(right);
@@ -17,7 +17,7 @@ namespace MathLib
 			return matrix;
 		}
 
-		HMatrix4 Perspective(float fov, float aspect, float near, float far) {
+		inline HMatrix4 Perspective(HReal fov, HReal aspect, HReal near, HReal far) {
 			float S = 1.0f / std::tanf(fov / 2 * MathLib::H_PI / 180.f);
 
 			HMatrix4 m = HMatrix4::Zero();
@@ -73,7 +73,7 @@ namespace MathLib
 				mEye += viewY * x;
 				_UpdateMatrix();
 			}
-			void handleMotion(MathLib::HReal x, MathLib::HReal y)
+			void HandleMotion(MathLib::HReal x, MathLib::HReal y)
 			{
 				const int dx = mMouseX - x;
 				const int dy = mMouseY - y;
@@ -147,7 +147,7 @@ namespace MathLib
 			}
 
 		private:
-			void _UpdateMatrix();
+			void _UpdateMatrix()
 			{
 				mViewMatrix = LookAt(mEye, mEye + mDir, HVector3(0, 1, 0));
 				mProjectMatrix = Perspective(mFOV, mAspectRatio, mNearClip, mFarClip);

@@ -38,7 +38,7 @@ namespace MathLib
         {
         public:
             Box() = default;
-            Box(const Hvector3& halfSize)
+            Box(const HVector3& halfSize)
 				: m_HalfSize(halfSize)
 			{
 			}

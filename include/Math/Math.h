@@ -40,6 +40,11 @@ namespace MathLib
 	typedef Eigen::AlignedBox<HReal, 2> HAABBox2D;
 	typedef Eigen::AlignedBox<HReal, 3> HAABBox3D;
 
+	typedef Eigen::AngleAxis<HReal> HAngleAxis;
+
+	typedef Eigen::Translation<HReal, 2> HTranslation2;
+	typedef Eigen::Translation<HReal, 3> HTranslation3;
+
 	typedef Eigen::Quaternion<HReal> HQuaternion;
 
 	typedef Eigen::Transform<HReal, 2, Eigen::Affine> HTransform2;
