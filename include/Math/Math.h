@@ -8,8 +8,10 @@ namespace MathLib
 {
 #ifdef USE_DOUBLE_REAL
 	typedef double HReal;
+	static HReal H_PI = 3.14159265358979323846;
 #else
 	typedef float HReal;
+	static HReal H_PI = 3.14159265358979323846f;
 #endif
 
 	typedef Eigen::Matrix<HReal, 2, 1> HVector2;
@@ -39,6 +41,9 @@ namespace MathLib
 	typedef Eigen::AlignedBox<HReal, 3> HAABBox3D;
 
 	typedef Eigen::Quaternion<HReal> HQuaternion;
+
+	typedef Eigen::Transform<HReal, 2, Eigen::Affine> HTransform2;
+	typedef Eigen::Transform<HReal, 3, Eigen::Affine> HTransform3;
 
 	template <typename target_ptr, typename source>
 	inline target_ptr smart_cast(source *s)
