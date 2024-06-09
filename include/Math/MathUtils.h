@@ -1,6 +1,5 @@
 #pragma once
 #include <Math/Math.h>
-#include <cmath>
 
 #define HVECTOR_ROUND(dim) inline HVector##dim##UI VectorRound##dim(const HVector##dim &v)
 namespace MathLib
