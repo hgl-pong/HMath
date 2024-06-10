@@ -86,6 +86,31 @@ namespace MathLib
 			return meshData;
 		}
 
+		inline MeshData GenerateBoxWireFrameMeshData(const HVector3& halfSize)
+		{
+			MeshData meshData;
+
+			std::vector<HVector3>& vertices = meshData.m_Vertices;
+			std::vector<uint32_t>& indices = meshData.m_Indices;
+
+			vertices = {
+				{-halfSize[0], -halfSize[1], -halfSize[2]},
+				{halfSize[0], -halfSize[1], -halfSize[2]},
+				{halfSize[0], halfSize[1], -halfSize[2]},
+				{-halfSize[0], halfSize[1], -halfSize[2]},
+				{-halfSize[0], -halfSize[1], halfSize[2]},
+				{halfSize[0], -halfSize[1], halfSize[2]},
+				{halfSize[0], halfSize[1], halfSize[2]},
+				{-halfSize[0], halfSize[1], halfSize[2]} };
+
+			indices = {
+				0, 1, 1,2, 2, 3,3,0, // Front face
+				5, 4, 4, 7, 7, 6,6,5, // Back face
+				0,4,1,5,2,6,3,7
+			};
+			return meshData;
+		}
+
 		inline MeshData GenerateCylinderMeshData(HReal radius, HReal height, const uint32_t slices = 10, const uint32_t stacks = 10)
 		{
 			MeshData meshData;
