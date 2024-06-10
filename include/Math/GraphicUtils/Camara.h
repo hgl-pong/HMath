@@ -18,7 +18,7 @@ namespace MathLib
 		}
 
 		inline HMatrix4 Perspective(HReal fov, HReal aspect, HReal near, HReal far) {
-			float S = 1.0f / std::tanf(fov / 2 * MathLib::H_PI / 180.f);
+			float S = 1.0f / std::tanf(fov / 2 * H_PI / 180.f);
 
 			HMatrix4 m = HMatrix4::Zero();
 			m(0, 0) = S / aspect;
@@ -34,7 +34,7 @@ namespace MathLib
 		class Camera
 		{
 		public:
-			Camera(const HVector3& eye, const HVector3& dir, const MathLib::HReal& aspectRatio,const HReal nearClip=1.f,const HReal farClip=10000.f,const HReal fov=60.f) 
+			Camera(const HVector3& eye, const HVector3& dir, const HReal& aspectRatio,const HReal nearClip=1.f,const HReal farClip=10000.f,const HReal fov=60.f) 
 				: mMouseX(0), 
 				mMouseY(0), 
 				mSpeed(2.0f),
@@ -54,7 +54,7 @@ namespace MathLib
 				mMouseX = x;
 				mMouseY = y;
 			}
-			bool HandleKey(unsigned char key, int x, int y, MathLib::HReal speed = 0.5f)
+			bool HandleKey(unsigned char key, int x, int y, HReal speed = 0.5f)
 			{
 				(void)x;
 				(void)y;
@@ -80,18 +80,18 @@ namespace MathLib
 				mEye += viewY * x;
 				_UpdateMatrix();
 			}
-			void HandleMotion(MathLib::HReal x, MathLib::HReal y)
+			void HandleMotion(HReal x, HReal y)
 			{
 				const int dx = mMouseX - x;
 				const int dy = mMouseY - y;
 
 				const HVector3 viewY = mDir.cross(HVector3(0, 1, 0)).normalized();
 
-				const MathLib::HReal Sensitivity = H_PI * 0.5f / 180.0f;
+				const HReal Sensitivity = H_PI * 0.5f / 180.0f;
 
-				const MathLib::HAngleAxis qx(Sensitivity * dx, HVector3(0, 1, 0));
+				const HAngleAxis qx(Sensitivity * dx, HVector3(0, 1, 0));
 				mDir = qx * mDir;
-				const MathLib::HAngleAxis qy(Sensitivity * dy, viewY);
+				const HAngleAxis qy(Sensitivity * dy, viewY);
 				mDir = qy * mDir;
 
 				mDir.normalize();
@@ -115,10 +115,10 @@ namespace MathLib
 				HVector3 viewY = mDir.cross(HVector3(0, 1, 0));
 
 				if (viewY.norm() < 1e-6f)
-					return HTransform3(MathLib::HTranslation3(mEye));
+					return HTransform3(HTranslation3(mEye));
 
 				const HMatrix3 m = (HMatrix3() << mDir.cross(viewY), viewY, -mDir).finished();
-				return HTransform3(MathLib::HTranslation3(mEye) * HQuaternion(m));
+				return HTransform3(HTranslation3(mEye) * HQuaternion(m));
 			}
 			HMatrix4 GetViewMatrix()
 			{
@@ -148,7 +148,7 @@ namespace MathLib
 				mViewProjectMatrix = (mProjectMatrix.transpose() * mViewMatrix.transpose()).transpose();
 			}
 
-			void SetSpeed(MathLib::HReal speed)
+			void SetSpeed(HReal speed)
 			{
 				mSpeed = speed;
 			}
@@ -164,16 +164,16 @@ namespace MathLib
 		private:
 			HVector3 mEye;
 			HVector3 mDir;
-			MathLib::HReal mAspectRatio;
-			MathLib::HReal mNearClip = 1.0f;
-			MathLib::HReal mFarClip = 10000.0f;
-			MathLib::HReal mFOV = 60.0f;
+			HReal mAspectRatio;
+			HReal mNearClip = 1.0f;
+			HReal mFarClip = 10000.0f;
+			HReal mFOV = 60.0f;
 			int mMouseX;
 			int mMouseY;
-			MathLib::HReal mSpeed;
-			MathLib::HMatrix4 mViewMatrix;
-			MathLib::HMatrix4 mProjectMatrix;
-			MathLib::HMatrix4 mViewProjectMatrix;
+			HReal mSpeed;
+			HMatrix4 mViewMatrix;
+			HMatrix4 mProjectMatrix;
+			HMatrix4 mViewProjectMatrix;
 		};
 
 	} // namespace GraphicTool

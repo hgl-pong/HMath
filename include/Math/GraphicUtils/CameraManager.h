@@ -72,7 +72,7 @@ namespace MathLib
 				m_ActiveCamera = it->second.get();
 			}
 
-			void CreateCamrera(const char* name, const HVector3& eye, const HVector3& dir, const MathLib::HReal& aspectRatio, const HReal nearClip = 1.f, const HReal farClip = 10000.f, const HReal fov = 60.f)
+			void CreateCamrera(const char* name, const HVector3& eye, const HVector3& dir, const HReal& aspectRatio, const HReal nearClip = 1.f, const HReal farClip = 10000.f, const HReal fov = 60.f)
 			{
 				std::shared_ptr<Camera> newCamera = std::make_shared<Camera>(eye, dir, aspectRatio,nearClip,farClip,fov);
 				AddCamera(name, newCamera);

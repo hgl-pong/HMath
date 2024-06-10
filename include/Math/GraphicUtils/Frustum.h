@@ -124,13 +124,13 @@ namespace MathLib
                 return true;
             }
 
-            void SetCullingDistance(MathLib::HReal distance)
+            void SetCullingDistance(HReal distance)
             {
                 m_MaxDistance = distance;
             }
 
         private:
-            MathLib::HReal m_MaxDistance = std::numeric_limits<MathLib::HReal>::max();
+            HReal m_MaxDistance = std::numeric_limits<HReal>::max();
             Frustum m_Frustum;
         };
 	}
