@@ -58,22 +58,23 @@ namespace MathLib
 			return meshData;
 		}
 
-		inline MeshData GenerateBoxMeshData(const HVector3 &halfSize)
+		inline MeshData GenerateBoxMeshData(const HVector3& halfSize, const HVector3 center = HVector3(0,0,0))
 		{
 			MeshData meshData;
 
-			std::vector<HVector3> &vertices = meshData.m_Vertices;
-			std::vector<uint32_t> &indices = meshData.m_Indices;
+			std::vector<HVector3>& vertices = meshData.m_Vertices;
+			std::vector<uint32_t>& indices = meshData.m_Indices;
 
 			vertices = {
-				{-halfSize[0], -halfSize[1], -halfSize[2]},
-				{halfSize[0], -halfSize[1], -halfSize[2]},
-				{halfSize[0], halfSize[1], -halfSize[2]},
-				{-halfSize[0], halfSize[1], -halfSize[2]},
-				{-halfSize[0], -halfSize[1], halfSize[2]},
-				{halfSize[0], -halfSize[1], halfSize[2]},
-				{halfSize[0], halfSize[1], halfSize[2]},
-				{-halfSize[0], halfSize[1], halfSize[2]}};
+				{center[0] - halfSize[0], center[1] - halfSize[1], center[2] - halfSize[2]},
+				{center[0] + halfSize[0], center[1] - halfSize[1], center[2] - halfSize[2]},
+				{center[0] + halfSize[0], center[1] + halfSize[1], center[2] - halfSize[2]},
+				{center[0] - halfSize[0], center[1] + halfSize[1], center[2] - halfSize[2]},
+				{center[0] - halfSize[0], center[1] - halfSize[1], center[2] + halfSize[2]},
+				{center[0] + halfSize[0], center[1] - halfSize[1], center[2] + halfSize[2]},
+				{center[0] + halfSize[0], center[1] + halfSize[1], center[2] + halfSize[2]},
+				{center[0] - halfSize[0], center[1] + halfSize[1], center[2] + halfSize[2]}
+			};
 
 			indices = {
 				0, 1, 2, 0, 2, 3, // Front face
@@ -86,7 +87,7 @@ namespace MathLib
 			return meshData;
 		}
 
-		inline MeshData GenerateBoxWireFrameMeshData(const HVector3& halfSize)
+		inline MeshData GenerateBoxWireFrameMeshData(const HVector3& halfSize, const HVector3 center = HVector3(0, 0, 0))
 		{
 			MeshData meshData;
 
@@ -94,14 +95,15 @@ namespace MathLib
 			std::vector<uint32_t>& indices = meshData.m_Indices;
 
 			vertices = {
-				{-halfSize[0], -halfSize[1], -halfSize[2]},
-				{halfSize[0], -halfSize[1], -halfSize[2]},
-				{halfSize[0], halfSize[1], -halfSize[2]},
-				{-halfSize[0], halfSize[1], -halfSize[2]},
-				{-halfSize[0], -halfSize[1], halfSize[2]},
-				{halfSize[0], -halfSize[1], halfSize[2]},
-				{halfSize[0], halfSize[1], halfSize[2]},
-				{-halfSize[0], halfSize[1], halfSize[2]} };
+				{center[0] - halfSize[0], center[1] - halfSize[1], center[2] - halfSize[2]},
+				{center[0] + halfSize[0], center[1] - halfSize[1], center[2] - halfSize[2]},
+				{center[0] + halfSize[0], center[1] + halfSize[1], center[2] - halfSize[2]},
+				{center[0] - halfSize[0], center[1] + halfSize[1], center[2] - halfSize[2]},
+				{center[0] - halfSize[0], center[1] - halfSize[1], center[2] + halfSize[2]},
+				{center[0] + halfSize[0], center[1] - halfSize[1], center[2] + halfSize[2]},
+				{center[0] + halfSize[0], center[1] + halfSize[1], center[2] + halfSize[2]},
+				{center[0] - halfSize[0], center[1] + halfSize[1], center[2] + halfSize[2]}
+			};
 
 			indices = {
 				0, 1, 1,2, 2, 3,3,0, // Front face
