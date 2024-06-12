@@ -10,10 +10,10 @@ namespace MathLib
 			const HVector3 right = up.cross(backward).normalized();
 			const HVector3 realUp = backward.cross(right);
 			HMatrix4 matrix;
-			matrix << right[0], right[1], right[2], 0,
-				realUp[0], realUp[1], realUp[2], 0,
-				backward[0], backward[1], backward[2], 0,
-				eye[0], eye[1], eye[2], 1;
+			matrix << right[0], realUp[0], backward[0], 0,
+				right[1], realUp[1], backward[1], 0,
+				right[2], realUp[2], backward[2], 0,
+				-eye.dot(right), -eye.dot(realUp), -eye.dot(backward), 1;
 			return matrix;
 		}
 
