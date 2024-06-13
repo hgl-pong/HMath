@@ -201,7 +201,7 @@ namespace MathLib {
 		HReal m_OverDx;
 		HashTable<HVector3UI, DataType> m_Grid;
 	};
-
+  
 	typedef HashGrid2D<unsigned int> HashGrid2DUI;
 	typedef HashGrid2D<char> HashGrid2DC;
 	typedef HashGrid3D<unsigned int> HashGrid3DUI;
