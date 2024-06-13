@@ -136,5 +136,36 @@ namespace MathLib
             HReal m_Radius;
             HReal m_HalfHeight;
         };
+
+        class Tetraheron
+        {
+        public:
+            Tetraheron() = default;
+            Tetraheron(const HVector3& a, const HVector3& b, const HVector3& c, const HVector3& d)
+                : m_A(a), m_B(b), m_C(c), m_D(d)
+            {
+			}
+
+            void Set(const HVector3& a, const HVector3& b, const HVector3& c, const HVector3& d)
+            {
+				m_A = a;
+				m_B = b;
+				m_C = c;
+				m_D = d;
+			}
+
+            HReal Distance(const HVector3& point) const
+            {
+				HVector3 p = point;
+				HVector3 n = ((m_B - m_A).cross(m_C - m_A)).normalized();
+				HReal d = n.dot(m_A);
+				return n.dot(p) - d;
+			}
+        private:
+            HVector3 m_A;
+			HVector3 m_B;
+			HVector3 m_C;
+			HVector3 m_D;
+        };
     }
 }
