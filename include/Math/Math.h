@@ -9,9 +9,11 @@ namespace MathLib
 #ifdef USE_DOUBLE_REAL
 	typedef double HReal;
 	static HReal H_PI = 3.14159265358979323846;
+	static HReal EPS = 1e-4;
 #else
 	typedef float HReal;
 	static HReal H_PI = 3.14159265358979323846f;
+	static HReal EPS = 1e-4f;
 #endif
 
 	typedef Eigen::Matrix<HReal, 2, 1> HVector2;

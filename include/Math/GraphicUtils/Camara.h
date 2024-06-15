@@ -17,15 +17,15 @@ namespace MathLib
 			return matrix;
 		}
 
-		inline HMatrix4 Perspective(HReal fov, HReal aspect, HReal near, HReal far) {
+		inline HMatrix4 Perspective(HReal fov, HReal aspect, HReal nearClip, HReal farClip) {
 			float S = 1.0f / std::tanf(fov / 2 * H_PI / 180.f);
 
 			HMatrix4 m = HMatrix4::Zero();
 			m(0, 0) = S / aspect;
 			m(1, 1) = S;
-			m(2, 2) = -(far + near) / (far - near);
+			m(2, 2) = -(farClip + nearClip) / (farClip - nearClip);
 			m(2, 3) = -1.0f;
-			m(3, 2) = -(2.0f * far * near) / (far - near);
+			m(3, 2) = -(2.0f * farClip * nearClip) / (farClip - nearClip);
 			m(3, 3) = 0.0f;
 
 			return m;

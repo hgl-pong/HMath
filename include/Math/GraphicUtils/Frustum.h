@@ -66,7 +66,7 @@ namespace MathLib
 
                 for (int i = 0; i < FRUSTUM_PLANE_COUNT; ++i)
                 {
-                    const Eigen::Vector3f& normal = m_Planes[i].GetNormal();
+                    const Eigen::Vector3f& normal = m_Planes[i].m_Normal;
                     float distance = m_Planes[i].Distance(center);
                     float r = extents.x() * std::abs(normal.x()) +
                         extents.y() * std::abs(normal.y()) +
