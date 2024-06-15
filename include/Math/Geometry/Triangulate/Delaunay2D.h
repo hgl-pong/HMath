@@ -40,11 +40,6 @@ namespace MathLib
 						const HVector2 v2 = ti.vertices[2] < UINT32_MAX - 2 ? points[ti.vertices[2]] : (ti.vertices[2] == UINT32_MAX - 2 ? p0 : (ti.vertices[2] == UINT32_MAX - 1 ? p1 : p2));
 						circumCircle = Geometry2D::CircumCircle(v0, v1, v2);
 					}
-
-					Triangle(uint32_t v0, uint32_t v1, uint32_t v2, const CircumCircle& circle)
-						: ti(v0, v1, v2), circumCircle(circle)
-					{
-					}
 				};
 
 			public:
