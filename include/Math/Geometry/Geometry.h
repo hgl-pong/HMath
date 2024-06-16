@@ -12,10 +12,16 @@ namespace MathLib
 
             CircumCircle(const std::vector<HVector2> &points, uint32_t v0, uint32_t v1, uint32_t v2)
             {
-                const HVector2& p0 = points[v0];
-                const HVector2& p1 = points[v1];
-                const HVector2& p2 = points[v2];
-                //CircumCircle(p0, p1, p2);
+                Update(points, v0, v1, v2);
+            }
+
+            CircumCircle(const HVector2 &p0, const HVector2 &p1, const HVector2 &p2)
+            {
+                Update(p0, p1, p2);
+            }
+
+            void Update(const HVector2 &p0, const HVector2 &p1, const HVector2 &p2)
+            {
                 HMatrix2 A_matrix;
                 HVector2 b_vector;
 
@@ -31,21 +37,12 @@ namespace MathLib
                 m_Radius = (m_Center - p0).norm();
             }
 
-            CircumCircle(const HVector2 &p0, const HVector2 &p1, const HVector2 &p2)
+            void Update(const std::vector<HVector2> &points, uint32_t v0, uint32_t v1, uint32_t v2)
             {
-                HMatrix2 A_matrix;
-                HVector2 b_vector;
-
-                A_matrix(0, 0) = 2 * (p1.x() - p0.x());
-                A_matrix(0, 1) = 2 * (p1.y() - p0.y());
-                A_matrix(1, 0) = 2 * (p2.x() - p0.x());
-                A_matrix(1, 1) = 2 * (p2.y() - p0.y());
-
-                b_vector(0) = p1.squaredNorm() - p0.squaredNorm();
-                b_vector(1) = p2.squaredNorm() - p0.squaredNorm();
-
-                m_Center = A_matrix.colPivHouseholderQr().solve(b_vector);
-                m_Radius = (m_Center - p0).norm();
+                const HVector2 &p0 = points[v0];
+                const HVector2 &p1 = points[v1];
+                const HVector2 &p2 = points[v2];
+                Update(p0, p1, p2);
             }
 
             bool IsPointInside(const HVector2 &point) const
