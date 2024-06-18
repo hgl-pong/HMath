@@ -5,4 +5,5 @@
 #include <Math/GraphicUtils/FrameProfiler.h>
 #include <Math/GraphicUtils/Frustum.h>
 #include <Math/GraphicUtils/HalfEdgeMesh.h>
+#include <Math/GraphicUtils/TriangleMesh.h>
 #include <Math/GraphicUtils/PerlinNoise.h>

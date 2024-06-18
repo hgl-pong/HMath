@@ -23,6 +23,28 @@ namespace MathLib
 				UpdateBoundingBox();
 			}
 
+			TriangleMesh(const std::vector<HVector3>& vertices, const std::vector<TriangleIndex>& triangles)
+				: m_Vertices(vertices), m_Triangles(triangles)
+			{
+				ComputeNormals();
+				UpdateBoundingBox();
+			}
+
+			TriangleMesh(const std::vector<HVector3>& vertices, const std::vector<uint32_t>& triangles)
+				: m_Vertices(vertices)
+			{				
+				if (triangles.size() % 3 != 0)
+					return;
+				const uint32_t triangleCount = triangles.size() / 3;
+				m_Triangles.resize(triangleCount);
+				for(uint32_t i=0;i<triangleCount;i++)
+				{
+					m_Triangles[i] = TriangleIndex(triangles[3 * i], triangles[3 * i + 1], triangles[3 * i + 2]);
+				}
+				ComputeNormals();
+				UpdateBoundingBox();
+			}
+
 			TriangleMesh(const TriangleMesh &other)
 				: m_Vertices(other.m_Vertices), m_Normals(other.m_Normals), m_TexCoords(other.m_TexCoords), m_Triangles(other.m_Triangles)
 			{
