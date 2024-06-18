@@ -1,0 +1,4 @@
+#include <Math/Solver/SolverCommon.h>
+#include <Math/Solver/ConjugateGradientSolver.h>
+#include <Math/Solver/DiagonalPreconditioner.h>
+#include <Math/Solver/SimpleSolver.h>

@@ -1,6 +1,5 @@
 #pragma once
-
-using namespace MathLib;
+#include <gtest/gtest.h>
 class TestHashGirid:public testing::Test
 {
 public:

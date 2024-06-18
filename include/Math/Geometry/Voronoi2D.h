@@ -6,5 +6,11 @@ namespace MathLib
 {
 	namespace Geometry
 	{
+		class Voronoi2D
+		{
+		public:
+			
+		private:
+		};
 	} //namespace Geometry
 } //namespace MathLib

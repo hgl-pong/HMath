@@ -6,10 +6,10 @@ namespace MathLib
 {
     namespace SolverTool
     {
-        class SimpleLinearSolver : virtual public LinearSolverBase
+        class SimpleLinearSolver : public LinearSolverBase
         {
         public:
-            LinearSolver(HMatrixX &matrix)
+            SimpleLinearSolver(HMatrixX &matrix)
                 : m_Matrix(matrix)
             {
             }
@@ -45,17 +45,17 @@ namespace MathLib
             HMatrixX &m_Matrix;
         };
 
-        class SimpleConjugateGradientSolver : virtual public LinearSolverBase
+        class SimpleConjugateGradientSolver : public LinearSolverBase
         {
         public:
-            SimpleConjugateGradientSolver(HMatrixX &matrix)
+            SimpleConjugateGradientSolver(HMatrixX& matrix)
                 : m_Matrix(matrix)
             {
             }
 
-            int Solve(HVectorX &x, const HVectorX &b) override
+            int Solve(HVectorX& x, const HVectorX& b) override
             {
-                const HSparseMatrixRowMajor &matrix = smart_cast<HSparseMatrixRowMajor&>(m_Matrix).getEigenMatrix();
+                const HSparseMatrixRowMajor& matrix = smart_cast<HSparseMatrixRowMajor&>(m_Matrix).getEigenMatrix();
                 Eigen::ConjugateGradient<HSparseMatrixRowMajor, Eigen::Upper> solver;
                 solver.setTolerance(1e-7);
                 solver.setMaxIterations(10000);
@@ -80,6 +80,9 @@ namespace MathLib
                 std::cout << "ConjugateGradientSolver Solving succeeded" << std::endl;
 #endif
                 return 0;
-            };
-        } // namespace SolverTool
-    } // namespace MathLib
+            }
+        private:
+            HMatrixX& m_Matrix;
+        };
+    } // namespace SolverTool
+} // namespace MathLib

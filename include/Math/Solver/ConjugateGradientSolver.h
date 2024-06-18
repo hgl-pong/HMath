@@ -7,7 +7,7 @@ namespace MathLib
 {
     namespace SolverTool
     {
-        class ConjugateGradientSolver : virtual public LinearSolverBase
+        class ConjugateGradientSolver : public LinearSolverBase
         {
         public:
             ConjugateGradientSolver(HMatrixX &matrix)
@@ -30,7 +30,7 @@ namespace MathLib
             uint32_t GetMaxIterations() const { return m_MaxIterations; }
             HReal GetTolerance() const { return m_Tolerance; }
 
-            void Solve(HVectorX &x, const HVectorX &b)
+            int Solve(HVectorX &x, const HVectorX &b) override
             {
                 m_Iterations = 0;
                 m_Preconditioner = std::make_unique<PreconditionerTool::DiagonalPreconditioner>(m_Matrix);

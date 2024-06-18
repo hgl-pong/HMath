@@ -1,6 +1,6 @@
 #pragma once
 #include <Math/Math.h>
-#include <Math/Mesh/MeshCommon.h>
+#include <Math/GraphicUtils/MeshCommon.h>
 #include <vector>
 
 namespace MathLib
@@ -32,6 +32,6 @@ namespace MathLib
 
         public:
         private:
-        }
+        };
     } // namespace MeshTool
 } // namespace MathLib
