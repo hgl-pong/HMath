@@ -49,7 +49,7 @@ namespace MathLib
             {
                 HVector2 diff = point - m_Center;
                 HReal dist = diff.norm();
-                return dist - m_Radius <= EPS;
+                return dist - m_Radius <= H_EPSILON;
             }
         };
     } // namespace Geometry2D

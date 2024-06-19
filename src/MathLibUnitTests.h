@@ -8,3 +8,4 @@
 #include "TestHashGirid.h"
 #include "TestTriangleMesh.h"
 #include "TestPerlinNoise.h"
+#include "TestIntersect.h"

@@ -9,11 +9,18 @@ namespace MathLib {
 			return v0 - v1;
 		}
 
-		inline HReal Orientaion2D(const HVector2& v0, const HVector2& v1, const HVector2& v2)
+		inline HReal Orientation2D(const HVector2& v0, const HVector2& v1, const HVector2& v2)
 		{
 			HVector2 v01 = v1 - v0;
 			HVector2 v02 = v2 - v0;
 			return v01[0] * v02[1] - v01[1] * v02[0];
+		}
+
+		inline HReal Orientation3D(const HVector3& v0, const HVector3& v1, const HVector3& v2)
+		{
+			HVector3 v01 = v1 - v0;
+			HVector3 v02 = v2 - v0;
+			return v01.cross(v02).norm();
 		}
 
 		inline HReal Orientation3D(const HVector3& v0, const HVector3& v1, const HVector3& v2, const HVector3& v3)
@@ -26,7 +33,7 @@ namespace MathLib {
 
 		inline void IntervalOrientation2D(const HVector2& v0, const HVector2& v1, const HVector2& v2, HReal& min, HReal& max)
 		{
-			HReal a = Orientaion2D(v0, v1, v2);
+			HReal a = Orientation2D(v0, v1, v2);
 			min = std::min(min, a);
 			max = std::max(max, a);
 		}
@@ -73,7 +80,7 @@ namespace MathLib {
 
 			o = Orientation1D(v1[1], v2[1]);
 			if (o < 0) return -sign; else if (o > 0) return sign;
-			o = -Orientaion1D(v0[0], v2[0]);
+			o = -Orientation1D(v0[0], v2[0]);
 			if (o < 0) return -sign; else if (o > 0) return sign;
 			o = -Orientation1D(v1[0], v2[0]);
 			if (o < 0) return -sign; else if (o > 0) return sign;
