@@ -5,6 +5,9 @@
 #define H_EPSILON 1e-6
 #endif
 
+#define H_REAL_MAX std::numeric_limits<MathLib::HReal>::max()
+#define H_REAL_MIN std::numeric_limits<MathLib::HReal>::lowest()
+
 namespace MathLib
 {
 		inline bool Equal(const HReal& a, const HReal& b)
