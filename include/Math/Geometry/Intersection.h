@@ -225,17 +225,9 @@ namespace MathLib
 			const HVector2 &min = aabb.min();
 			const HVector2 &max = aabb.max();
 			const HVector2 &p0 = min;
-			if ((p0 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector2 &p1 = max;
-			if ((p1 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector2 &p2 = HVector2(max.x(), min.y());
-			if ((p2 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector2 &p3 = HVector2(min.x(), max.y());
-			if ((p3 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			if (IsPointInTriangle2D(rayOrigin, p0, p1, p2) || IsPointInTriangle2D(rayOrigin, p0, p1, p3))
 				return true;
 			return false;
@@ -250,29 +242,13 @@ namespace MathLib
 			const HVector3 &min = aabb.min();
 			const HVector3 &max = aabb.max();
 			const HVector3 &p0 = min;
-			if ((p0 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector3 &p1 = max;
-			if ((p1 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector3 &p2 = HVector3(max.x(), min.y(), min.z());
-			if ((p2 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector3 &p3 = HVector3(min.x(), max.y(), min.z());
-			if ((p3 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector3 &p4 = HVector3(min.x(), min.y(), max.z());
-			if ((p4 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector3 &p5 = HVector3(max.x(), max.y(), min.z());
-			if ((p5 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector3 &p6 = HVector3(max.x(), min.y(), max.z());
-			if ((p6 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			const HVector3 &p7 = HVector3(min.x(), max.y(), max.z());
-			if ((p7 - rayOrigin).dot(rayDir) < 0)
-				return false;
 			if (IsPointInTriangle3D(rayOrigin, p0, p1, p2) ||
 				IsPointInTriangle3D(rayOrigin, p0, p1, p3) ||
 				IsPointInTriangle3D(rayOrigin, p0, p1, p4) ||

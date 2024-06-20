@@ -9,3 +9,4 @@
 #include "TestTriangleMesh.h"
 #include "TestPerlinNoise.h"
 #include "TestIntersect.h"
+#include "TestEarClip.h"
