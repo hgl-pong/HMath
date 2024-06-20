@@ -138,7 +138,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectTriangle2D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
         EXPECT_NEAR(t, 0.5, H_EPSILON);
         EXPECT_NEAR(u, 0.5, H_EPSILON);
         EXPECT_NEAR(v, 0.0, H_EPSILON);
@@ -152,7 +152,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle2D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
     }
 
     // 测试射线平行于三角形边的情况
@@ -163,7 +163,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle2D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
     }
 
     // 测试射线起点在三角形内部的情况
@@ -173,8 +173,8 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle2D)
         MathLib::HVector2 v0(0, 0);
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
-
-        EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectTriangle2D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        
+        EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
         EXPECT_NEAR(t, 0.25, H_EPSILON);
         EXPECT_NEAR(u, 0.25, H_EPSILON);
         EXPECT_NEAR(v, 0.0, H_EPSILON);
@@ -188,7 +188,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle2D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
     }
 }
 
@@ -202,7 +202,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle3D)
         MathLib::HVector3 v2(0, 1, 0);
         MathLib::HReal t, u, v;
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectTriangle3D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
         EXPECT_NEAR(t, 1.0, H_EPSILON);
         EXPECT_NEAR(u, 0.5, H_EPSILON);
         EXPECT_NEAR(v, 0.5, H_EPSILON);
@@ -216,7 +216,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle3D)
         MathLib::HVector3 v2(0, 1, 0);
         MathLib::HReal t, u, v;
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle3D(rayOriginMiss, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOriginMiss, rayDir, v0, v1, v2, t, u, v));
     }
 
     {
@@ -227,7 +227,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle3D)
         MathLib::HVector3 v2(0, 1, 0);
         MathLib::HReal t, u, v;
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle3D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
     }
 
     {
@@ -238,7 +238,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle3D)
         MathLib::HVector3 v2(0, 1, 0);
         MathLib::HReal t, u, v;
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle3D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
     }
 
     {
@@ -249,7 +249,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle3D)
         MathLib::HVector3 v2(0, 1, 0);
         MathLib::HReal t, u, v;
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle3D(rayOrigin, rayDir, v0, v1, v2, t, u, v));
+        EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
     }
 }
 
@@ -483,39 +483,39 @@ TEST(IntersectionUtilsTest, RayIntersectAABBox2D)
     MathLib::HReal tmin, tmax;
 
     // 测试射线从原点出发，方向为(1,1)，与AABB相交
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox2D(rayOrigin, rayDir, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 测试射线从AABB外部出发，方向为(1,1)，不与AABB相交
     MathLib::HVector2 rayOrigin_outside(2, 2);
-    EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectAABBox2D(rayOrigin_outside, rayDir, aabb, tmin, tmax));
+    EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin_outside, rayDir, aabb, tmin, tmax));
 
     rayOrigin_outside = MathLib::HVector2(-10, -7);
-    EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectAABBox2D(rayOrigin_outside, rayDir, aabb, tmin, tmax));
+    EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin_outside, rayDir, aabb, tmin, tmax));
 
     // 新增测试用例：射线平行于AABB的边
     MathLib::HVector2 rayDir_parallel(1, 0);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox2D(rayOrigin, rayDir_parallel, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir_parallel, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 新增测试用例：射线起点在AABB内部
     MathLib::HVector2 rayOrigin_inside(0, 0);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox2D(rayOrigin_inside, rayDir, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin_inside, rayDir, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 新增测试用例：射线起点在AABB边界上
     MathLib::HVector2 rayOrigin_on_edge(1, 0);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox2D(rayOrigin_on_edge, rayDir, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin_on_edge, rayDir, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 新增测试用例：射线与AABB相交于一个顶点
     MathLib::HVector2 rayDir_to_vertex(-1, -1);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox2D(rayOrigin, rayDir_to_vertex, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir_to_vertex, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 新增测试用例：射线方向为零向量
     MathLib::HVector2 rayDir_zero(0, 0);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox2D(rayOrigin, rayDir_zero, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir_zero, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 }
 
@@ -527,37 +527,37 @@ TEST(IntersectionUtilsTest, RayIntersectAABBox3D)
     MathLib::HReal tmin, tmax;
 
     // 测试射线从原点出发，方向为(1,1,1)，与AABB相交
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox3D(rayOrigin, rayDir, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 测试射线从AABB外部出发，方向为(1,1,1)，不与AABB相交
     MathLib::HVector3 rayOrigin_outside(2, 2, 2);
-    EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectAABBox3D(rayOrigin_outside, rayDir, aabb, tmin, tmax));
+    EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin_outside, rayDir, aabb, tmin, tmax));
 
     rayOrigin_outside = MathLib::HVector3(-10, -7, 0);
-    EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectAABBox3D(rayOrigin_outside, rayDir, aabb, tmin, tmax));
+    EXPECT_FALSE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin_outside, rayDir, aabb, tmin, tmax));
 
     // 新增测试用例：射线平行于AABB的边
     MathLib::HVector3 rayDir_parallel(1, 0, 0);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox3D(rayOrigin, rayDir_parallel, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir_parallel, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 新增测试用例：射线起点在AABB内部
     MathLib::HVector3 rayOrigin_inside(0, 0, 0);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox3D(rayOrigin_inside, rayDir, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin_inside, rayDir, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 新增测试用例：射线起点在AABB边界上
     MathLib::HVector3 rayOrigin_on_edge(1, 0, 0);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox3D(rayOrigin_on_edge, rayDir, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin_on_edge, rayDir, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 新增测试用例：射线与AABB相交于一个顶点
     MathLib::HVector3 rayDir_to_vertex(-1, -1, -1);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox3D(rayOrigin, rayDir_to_vertex, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir_to_vertex, aabb, tmin, tmax));
     EXPECT_GE(tmax, tmin);
 
     // 新增测试用例：射线方向为零向量
     MathLib::HVector3 rayDir_zero(0, 0, 0);
-    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox3D(rayOrigin, rayDir_zero, aabb, tmin, tmax));
+    EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir_zero, aabb, tmin, tmax));
 }

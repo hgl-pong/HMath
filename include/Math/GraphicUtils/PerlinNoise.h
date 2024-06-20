@@ -8,7 +8,7 @@ namespace MathLib
 	{
 		struct NoiseParams
 		{
-			uint32_t oxtavesNumbers;
+			uint32_t octavesNumbers;
 			HReal frequency;
 			HReal amplitude;
 			uint32_t seed;
@@ -28,7 +28,7 @@ namespace MathLib
 		public:
 			PerlinNoise(NoiseParams& params)
 			{
-				m_Octaves = params.oxtavesNumbers;
+				m_Octaves = params.octavesNumbers;
 				m_Frequency = params.frequency;
 				m_Amplitude = params.amplitude;
 				m_Seed = params.seed;

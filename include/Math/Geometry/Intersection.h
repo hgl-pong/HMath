@@ -49,7 +49,7 @@ namespace MathLib
 			return a >= 0 && b >= 0 && c >= 0;
 		}
 
-		inline bool RayIntersectTriangle2D(const HVector2 &rayOrigin, const HVector2 &rayDir, const HVector2 &v0, const HVector2 &v1, const HVector2 &v2, HReal &t, HReal &u, HReal &v)
+		inline bool RayIntersectTriangle(const HVector2 &rayOrigin, const HVector2 &rayDir, const HVector2 &v0, const HVector2 &v1, const HVector2 &v2, HReal &t, HReal &u, HReal &v)
 		{
 			HVector2 edge1 = v1 - v0;
 			HVector2 edge2 = v2 - v0;
@@ -70,7 +70,7 @@ namespace MathLib
 			return Greater(t, 0);
 		}
 
-		inline bool RayIntersectTriangle3D(const HVector3 &rayOrigin, const HVector3 &rayDir, const HVector3 &v0, const HVector3 &v1, const HVector3 &v2, HReal &t, HReal &u, HReal &v)
+		inline bool RayIntersectTriangle(const HVector3 &rayOrigin, const HVector3 &rayDir, const HVector3 &v0, const HVector3 &v1, const HVector3 &v2, HReal &t, HReal &u, HReal &v)
 		{
 			HVector3 edge1 = v1 - v0;
 			HVector3 edge2 = v2 - v0;
@@ -216,47 +216,33 @@ namespace MathLib
 				return TriTriIntersect2D(v0, v1, v2, u1, u2, u0);
 		}
 
-		inline bool RayIntersectAABBox2D(const HVector2 &rayOrigin, const HVector2 &rayDir, const HAABBox2D &aabb, HReal &tmin, HReal &tmax)
+		template<uint32_t N>
+		inline bool RayIntersectAABBox(const HVector<N> &rayOrigin, const HVector<N>& rayDir, const HAABBox<N> &aabb, HReal &tmin, HReal &tmax)
 		{
+			//tmin = 0.f;
+			//tmax = H_REAL_MAX;
 			if (aabb.contains(rayOrigin))
 				return true;
-			if (rayDir[0] == 0 && rayDir[1] == 0)
+			if (rayDir.isZero())
 				return false;
-			const HVector2 &min = aabb.min();
-			const HVector2 &max = aabb.max();
-			const HVector2 &p0 = min;
-			const HVector2 &p1 = max;
-			const HVector2 &p2 = HVector2(max.x(), min.y());
-			const HVector2 &p3 = HVector2(min.x(), max.y());
-			if (IsPointInTriangle2D(rayOrigin, p0, p1, p2) || IsPointInTriangle2D(rayOrigin, p0, p1, p3))
-				return true;
-			return false;
-		}
+			const HVector<N>&min = aabb.min();
+			const HVector<N>&max = aabb.max();
+			for (int i = 0; i < N; i++)
+			{
+				HReal u0, u1;
+				u0 = (min[i] - rayOrigin[i]) / rayOrigin[i];
+				u1 = (max[i] - rayOrigin[i]) / rayOrigin[i];
+				if (u0 > u1)
+					std::swap(u0, u1);
+				if (u0 > tmax || u1 < tmin)
+					return false;
+				tmin = std::max(tmin, u0);
+				tmax = std::min(tmax, u1);
 
-		inline bool RayIntersectAABBox3D(const HVector3 &rayOrigin, const HVector3 &rayDir, const HAABBox3D &aabb, HReal &tmin, HReal &tmax)
-		{
-			if (aabb.contains(rayOrigin))
-				return true;
-			if (rayDir[0] == 0 && rayDir[1] == 0 && rayDir[2] == 0)
-				return false;
-			const HVector3 &min = aabb.min();
-			const HVector3 &max = aabb.max();
-			const HVector3 &p0 = min;
-			const HVector3 &p1 = max;
-			const HVector3 &p2 = HVector3(max.x(), min.y(), min.z());
-			const HVector3 &p3 = HVector3(min.x(), max.y(), min.z());
-			const HVector3 &p4 = HVector3(min.x(), min.y(), max.z());
-			const HVector3 &p5 = HVector3(max.x(), max.y(), min.z());
-			const HVector3 &p6 = HVector3(max.x(), min.y(), max.z());
-			const HVector3 &p7 = HVector3(min.x(), max.y(), max.z());
-			if (IsPointInTriangle3D(rayOrigin, p0, p1, p2) ||
-				IsPointInTriangle3D(rayOrigin, p0, p1, p3) ||
-				IsPointInTriangle3D(rayOrigin, p0, p1, p4) ||
-				IsPointInTriangle3D(rayOrigin, p0, p1, p5) ||
-				IsPointInTriangle3D(rayOrigin, p0, p1, p6) ||
-				IsPointInTriangle3D(rayOrigin, p0, p1, p7))
-				return true;
-			return false;
+				if (tmax < tmin)
+					return false;
+			}
+			return true;
 		}
 
 		inline bool TriTriCoplanar3D(const HVector3 &v0, const HVector3 &v1, const HVector3 &v2, const HVector3 &u0, const HVector3 &u1, const HVector3 &u2, const HVector3 &n1, const HVector3 &n2)
