@@ -1,5 +1,6 @@
 #pragma once
 #include <Math/Math.h>
+#include <Math/GraphicUtils/MeshCommon.h>
 namespace MathLib
 {
     namespace Geometry2D
