@@ -10,7 +10,7 @@
 
 namespace MathLib
 {
-		inline bool Equal(const HReal& a, const HReal& b)
+	inline bool Equal(const HReal& a, const HReal& b)
 	{
 		return std::abs(a - b) < H_EPSILON;
 	}

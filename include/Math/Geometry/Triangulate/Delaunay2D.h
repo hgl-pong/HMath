@@ -12,35 +12,48 @@ namespace MathLib
 	{
 		namespace Triangulate
 		{
+			template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
 			class Delaunay2D
 			{
-			private:	
-				static const HVector2 m_SuperP0;
-				static const HVector2 m_SuperP1;
-				static const HVector2 m_SuperP2;
+			private:
+				typedef EdgeIndex<IntType> InternalEdgeIndex;
+				typedef TriangleIndex<IntType> InternalTriangleIndex;
+				typedef Geometry2D::CircumCircle<IntType> InternnalCircumCircle;
+				static const IntType Max_IntType = std::numeric_limits<IntType>::max();
+
 				struct DTriangle
 				{
-					TriangleIndex ti;
-					Geometry2D::CircumCircle circumCircle;
+					InternalTriangleIndex ti;
+					InternnalCircumCircle circumCircle;
 					DTriangle() {}
-					DTriangle(const std::vector<HVector2> &points, uint32_t v0, uint32_t v1, uint32_t v2)
+					DTriangle(const std::vector<HVector2> &points, IntType v0, IntType v1, IntType v2)
 						: ti(v0, v1, v2), circumCircle(points, v0, v1, v2)
 					{
 					}
 
-					DTriangle(uint32_t v0, uint32_t v1, uint32_t v2, const Geometry2D::CircumCircle &circle)
+					DTriangle(IntType v0, IntType v1, IntType v2, const InternnalCircumCircle &circle)
 						: ti(v0, v1, v2), circumCircle(circle)
 					{
 					}
 					void UpdateCircumCircle(const std::vector<HVector2> &points)
 					{
-						const HVector2 v0 = ti.vertices[0] < UINT32_MAX - 2 ? points[ti.vertices[0]] : (ti.vertices[0] == UINT32_MAX - 2 ? m_SuperP0 : (ti.vertices[0] == UINT32_MAX - 1 ? m_SuperP1 : m_SuperP2));
-						const HVector2 v1 = ti.vertices[1] < UINT32_MAX - 2 ? points[ti.vertices[1]] : (ti.vertices[1] == UINT32_MAX - 2 ? m_SuperP0 : (ti.vertices[1] == UINT32_MAX - 1 ? m_SuperP1 : m_SuperP2));
-						const HVector2 v2 = ti.vertices[2] < UINT32_MAX - 2 ? points[ti.vertices[2]] : (ti.vertices[2] == UINT32_MAX - 2 ? m_SuperP0 : (ti.vertices[2] == UINT32_MAX - 1 ? m_SuperP1 : m_SuperP2));
+						const HVector2 v0 = ti[0] < Max_IntType - 2 ? points[ti[0]] : (ti[0] == Max_IntType - 2 ? m_SuperP0 : (ti[0] == Max_IntType - 1 ? m_SuperP1 : m_SuperP2));
+						const HVector2 v1 = ti[1] < Max_IntType - 2 ? points[ti[1]] : (ti[1] == Max_IntType - 2 ? m_SuperP0 : (ti[1] == Max_IntType - 1 ? m_SuperP1 : m_SuperP2));
+						const HVector2 v2 = ti[2] < Max_IntType - 2 ? points[ti[2]] : (ti[2] == Max_IntType - 2 ? m_SuperP0 : (ti[2] == Max_IntType - 1 ? m_SuperP1 : m_SuperP2));
 						circumCircle.Update(v0, v1, v2);
 					}
+					IntType operator[](size_t i) const
+					{
+						return ti.vertices[i];
+					}
 				};
-				static const DTriangle m_SuperTriangle;
+
+				inline static HVector2 m_SuperP0{-2.5, -1};
+				inline static HVector2 m_SuperP1{0, 5};
+				inline static HVector2 m_SuperP2{2.5, -1};
+				static DTriangle m_SuperTriangle = DTriangle(Max_IntType - 2, Max_IntType - 1, Max_IntType,
+															 InternnalCircumCircle(m_SuperP0, m_SuperP1, m_SuperP2));
+
 			public:
 				Delaunay2D()
 				{
@@ -93,7 +106,7 @@ namespace MathLib
 						tri.UpdateCircumCircle(m_Points);
 					}
 
-					const uint32_t pointCount = m_Points.size();
+					const IntType pointCount = m_Points.size();
 					std::vector<DTriangle> triangles;
 					std::vector<DTriangle> superDTriangles;
 					triangles.reserve(pointCount);
@@ -104,7 +117,7 @@ namespace MathLib
 
 				void InsertPoints(std::vector<HVector2> points)
 				{
-					uint32_t startIndex = 0;
+					IntType startIndex = 0;
 					for (; startIndex < points.size(); startIndex++)
 					{
 						InsertPoint(points[startIndex]);
@@ -115,7 +128,7 @@ namespace MathLib
 					HVector2 center0 = m_BoundBox.center();
 					const HReal maxXY0 = std::max(size0[0], size0[1]);
 					m_Points.reserve(points.size() - startIndex);
-					for (uint32_t i = startIndex + 1; i < points.size(); i++)
+					for (IntType i = startIndex + 1; i < points.size(); i++)
 					{
 						m_BoundBox.extend(points[i] - center0);
 						m_Points.push_back((points[i] - center0) / maxXY0);
@@ -141,10 +154,10 @@ namespace MathLib
 						auto &tri = m_SuperTriangles[i];
 						tri.UpdateCircumCircle(m_Points);
 					}
-					
-					const uint32_t pointCount = m_Points.size();
+
+					const IntType pointCount = m_Points.size();
 					for (int l = pointCount - (points.size() - startIndex); l < pointCount; l++)
-					{					
+					{
 						std::vector<DTriangle> triangles;
 						std::vector<DTriangle> superTriangles;
 						triangles.reserve(pointCount);
@@ -156,8 +169,8 @@ namespace MathLib
 
 				void ErasePoint(const HVector2 &p)
 				{
-					uint32_t pointIndex = UINT32_MAX;
-					for (uint32_t i = 0; i < m_Points.size(); i++)
+					IntType pointIndex = Max_IntType;
+					for (IntType i = 0; i < m_Points.size(); i++)
 					{
 						if (m_Points[i] == p)
 						{
@@ -165,21 +178,21 @@ namespace MathLib
 							break;
 						}
 					}
-					if(pointIndex==UINT32_MAX)
+					if (pointIndex == Max_IntType)
 						return;
 					ErasePoint(pointIndex);
 				}
 
-				void ErasePoint(const uint32_t& pointIndex)
+				void ErasePoint(const IntType &pointIndex)
 				{
 					if (pointIndex >= m_Points.size())
 						return;
 					m_Points.erase(m_Points.begin() + pointIndex);
-					std::vector<HVector2> points=std::move(m_Points);
+					std::vector<HVector2> points = std::move(m_Points);
 					HVector2 size0 = m_BoundBox.sizes();
 					HVector2 center0 = m_BoundBox.center();
 					const HReal maxXY0 = std::max(size0[0], size0[1]);
-					for (uint32_t i = 0; i < points.size(); i++)
+					for (IntType i = 0; i < points.size(); i++)
 					{
 						points[i] = points[i] * maxXY0 + center0;
 					}
@@ -205,7 +218,7 @@ namespace MathLib
 						p = (p - center) / maxXY;
 					}
 
-					const uint32_t pointCount = m_Points.size();
+					const IntType pointCount = m_Points.size();
 					std::vector<DTriangle> triangles;
 					std::vector<DTriangle> superDTriangles;
 					m_SuperTriangles.push_back(m_SuperTriangle);
@@ -218,47 +231,47 @@ namespace MathLib
 					}
 				}
 
-				std::vector<uint32_t> GetTriangles() const
+				std::vector<IntType> GetTriangles() const
 				{
-					std::vector<uint32_t> indices;
+					std::vector<IntType> indices;
 					indices.reserve(m_Triangles.size() * 3);
 					for (auto &t : m_Triangles)
 					{
-						indices.push_back(t.ti.vertices[0]);
-						indices.push_back(t.ti.vertices[1]);
-						indices.push_back(t.ti.vertices[2]);
+						indices.push_back(t[0]);
+						indices.push_back(t[1]);
+						indices.push_back(t[2]);
 					}
 					return indices;
 				}
 
-				std::unordered_set<uint32_t> FindNeighbors(const uint32_t& pointIndex) const
+				std::unordered_set<IntType> FindNeighbors(const IntType &pointIndex) const
 				{
 					if (pointIndex >= m_Points.size())
-						return std::unordered_set<uint32_t>();
-					std::unordered_set<uint32_t> neighbors;
-					for (auto const& tri : m_Triangles)
+						return std::unordered_set<IntType>();
+					std::unordered_set<IntType> neighbors;
+					for (auto const &tri : m_Triangles)
 					{
-						if (tri.ti.vertices[0] == pointIndex || tri.ti.vertices[1] == pointIndex || tri.ti.vertices[2] == pointIndex)
+						if (tri[0] == pointIndex || tri[1] == pointIndex || tri[2] == pointIndex)
 						{
 							for (int i = 0; i < 3; i++)
 							{
-								if(tri.ti.vertices[i]!=pointIndex)
-									neighbors.insert(tri.ti.vertices[i]);
+								if (tri[i] != pointIndex)
+									neighbors.insert(tri[i]);
 							}
 						}
 					}
 					return neighbors;
 				}
 
-				std::vector < std::unordered_set<uint32_t>> Neighbors() const
+				std::vector<std::unordered_set<IntType>> Neighbors() const
 				{
-					std::vector<std::unordered_set<uint32_t>> neighbors;
+					std::vector<std::unordered_set<IntType>> neighbors;
 					neighbors.resize(m_Points.size());
-					for (auto const& tri : m_Triangles)
+					for (auto const &tri : m_Triangles)
 					{
-						const uint32_t& v0=tri.ti.vertices[0];
-						const uint32_t& v1=tri.ti.vertices[1];
-						const uint32_t& v2=tri.ti.vertices[2];
+						const IntType &v0 = tri[0];
+						const IntType &v1 = tri[1];
+						const IntType &v2 = tri[2];
 
 						neighbors[v0].insert(v1);
 						neighbors[v0].insert(v2);
@@ -269,8 +282,9 @@ namespace MathLib
 					}
 					return neighbors;
 				}
+
 			private:
-				void _CalculateDTriangles(const uint32_t index, std::vector<DTriangle> &triangles, std::vector<DTriangle> &superDTriangles)
+				void _CalculateDTriangles(const IntType index, std::vector<DTriangle> &triangles, std::vector<DTriangle> &superDTriangles)
 				{
 					triangles.clear();
 					superDTriangles.clear();
@@ -278,17 +292,17 @@ namespace MathLib
 					HVector2 p0(-2.5, -1);
 					HVector2 p1(0, 5);
 					HVector2 p2(2.5, -1);
-					std::unordered_map<EdgeIndex, bool> edges;
-					const uint32_t pointCount = m_Points.size();
+					std::unordered_map<InternalEdgeIndex, bool> edges;
+					const IntType pointCount = m_Points.size();
 					triangles.reserve(pointCount);
 
 					for (auto const &tri : m_Triangles)
 					{
 						if (tri.circumCircle.IsPointInside(p))
 						{
-							EdgeIndex e0(tri.ti.vertices[0], tri.ti.vertices[1]);
-							EdgeIndex e1(tri.ti.vertices[1], tri.ti.vertices[2]);
-							EdgeIndex e2(tri.ti.vertices[2], tri.ti.vertices[0]);
+							InternalEdgeIndex e0(tri[0], tri[1]);
+							InternalEdgeIndex e1(tri[1], tri[2]);
+							InternalEdgeIndex e2(tri[2], tri[0]);
 
 							const bool duplicate0 = edges.find(e0) != edges.end();
 							const bool duplicate1 = edges.find(e1) != edges.end();
@@ -308,9 +322,9 @@ namespace MathLib
 					{
 						if (tri.circumCircle.IsPointInside(p))
 						{
-							EdgeIndex e0(tri.ti.vertices[0], tri.ti.vertices[1]);
-							EdgeIndex e1(tri.ti.vertices[1], tri.ti.vertices[2]);
-							EdgeIndex e2(tri.ti.vertices[2], tri.ti.vertices[0]);
+							InternalEdgeIndex e0(tri[0], tri[1]);
+							InternalEdgeIndex e1(tri[1], tri[2]);
+							InternalEdgeIndex e2(tri[2], tri[0]);
 
 							edges[e0] = edges.find(e0) == edges.end();
 							edges[e1] = edges.find(e1) == edges.end();
@@ -324,17 +338,17 @@ namespace MathLib
 
 					for (auto &edgeIt : edges)
 					{
-						const EdgeIndex &edge = edgeIt.first;
+						const EdgeIndexUI32 &edge = edgeIt.first;
 						if (!edgeIt.second)
 							continue;
 
-						const bool isSuper = edge.v0 >= UINT32_MAX - 2 || edge.v1 >= UINT32_MAX - 2;
+						const bool isSuper = edge.v0 >= Max_IntType - 2 || edge.v1 >= Max_IntType - 2;
 						if (isSuper)
 						{
-							const HVector2 &v0 = edge.v0 < UINT32_MAX - 2 ? m_Points[edge.v0] : (edge.v0 == UINT32_MAX - 2 ? p0 : (edge.v0 == UINT32_MAX - 1 ? p1 : p2));
-							const HVector2 &v1 = edge.v1 < UINT32_MAX - 2 ? m_Points[edge.v1] : (edge.v1 == UINT32_MAX - 2 ? p0 : (edge.v1 == UINT32_MAX - 1 ? p1 : p2));
+							const HVector2 &v0 = edge.v0 < Max_IntType - 2 ? m_Points[edge.v0] : (edge.v0 == Max_IntType - 2 ? p0 : (edge.v0 == Max_IntType - 1 ? p1 : p2));
+							const HVector2 &v1 = edge.v1 < Max_IntType - 2 ? m_Points[edge.v1] : (edge.v1 == Max_IntType - 2 ? p0 : (edge.v1 == Max_IntType - 1 ? p1 : p2));
 							const HVector2 &v2 = p;
-							superDTriangles.push_back(DTriangle(edge.v0, edge.v1, index, Geometry2D::CircumCircle(v0, v1, v2)));
+							superDTriangles.push_back(DTriangle(edge.v0, edge.v1, index, InternnalCircumCircle(v0, v1, v2)));
 						}
 						else
 							triangles.push_back(DTriangle(m_Points, edge.v0, edge.v1, index));
@@ -347,10 +361,11 @@ namespace MathLib
 				std::vector<DTriangle> m_Triangles;
 				std::vector<DTriangle> m_SuperTriangles;
 			};
-			const HVector2 Delaunay2D::m_SuperP0 = HVector2(-2.5, -1);
-			const HVector2 Delaunay2D::m_SuperP1 = HVector2(0, 5);
-			const HVector2 Delaunay2D::m_SuperP2 = HVector2(2.5, -1);
-			const Delaunay2D::DTriangle Delaunay2D::m_SuperTriangle = Delaunay2D::DTriangle(UINT32_MAX - 2, UINT32_MAX - 1, UINT32_MAX, Geometry2D::CircumCircle(m_SuperP0, m_SuperP1, m_SuperP2));
+
+			typedef Delaunay2D<uint8_t> Delaunay2DUI8;
+			typedef Delaunay2D<uint16_t> Delaunay2DUI16;
+			typedef Delaunay2D<uint32_t> Delaunay2DUI32;
+			typedef Delaunay2D<uint64_t> Delaunay2DUI64;
 		}
 	}
 }

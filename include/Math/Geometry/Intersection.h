@@ -216,17 +216,17 @@ namespace MathLib
 				return TriTriIntersect2D(v0, v1, v2, u1, u2, u0);
 		}
 
-		template<uint32_t N>
-		inline bool RayIntersectAABBox(const HVector<N> &rayOrigin, const HVector<N>& rayDir, const HAABBox<N> &aabb, HReal &tmin, HReal &tmax)
+		template <uint32_t N>
+		inline bool RayIntersectAABBox(const HVectorR<N> &rayOrigin, const HVectorR<N> &rayDir, const HAABBox<N> &aabb, HReal &tmin, HReal &tmax)
 		{
-			//tmin = 0.f;
-			//tmax = H_REAL_MAX;
+			// tmin = 0.f;
+			// tmax = H_REAL_MAX;
 			if (aabb.contains(rayOrigin))
 				return true;
 			if (rayDir.isZero())
 				return false;
-			const HVector<N>&min = aabb.min();
-			const HVector<N>&max = aabb.max();
+			const HVectorR<N> &min = aabb.min();
+			const HVectorR<N> &max = aabb.max();
 			for (int i = 0; i < N; i++)
 			{
 				HReal u0, u1;

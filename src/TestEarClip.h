@@ -4,7 +4,7 @@
 #include <Math/Geometry/Triangulate/EarClip2D.h>
 
 TEST(EarClip2DTest, TriangulateConcavePolygon) {
-    MathLib::Geometry::Triangulate::EarClip2D earClip;
+    MathLib::Geometry::Triangulate::EarClip2D<uint32_t> earClip;
     std::vector<MathLib::HVector2> points = { {0, 0}, {2, 0}, {2, 2}, {1, 1}, {0, 2} };
     earClip.SetPolygon(points);
     earClip.Triangulate();
@@ -16,7 +16,7 @@ TEST(EarClip2DTest, TriangulateConcavePolygon) {
 }
 
 TEST(EarClip2DTest, TriangulatePolygonWithHole) {
-    MathLib::Geometry::Triangulate::EarClip2D earClip;
+    MathLib::Geometry::Triangulate::EarClip2D<uint32_t> earClip;
     std::vector<MathLib::HVector2> outer = { {0, 0}, {4, 0}, {4, 4}, {0, 4} };
     std::vector<MathLib::HVector2> inner = { {1, 1}, {3, 1}, {3, 3}, {1, 3} };
 
@@ -38,7 +38,7 @@ TEST(EarClip2DTest, TriangulatePolygonWithHole) {
 }
 
 TEST(EarClip2DTest, TriangulateRandomPolygon) {
-    MathLib::Geometry::Triangulate::EarClip2D earClip;
+    MathLib::Geometry::Triangulate::EarClip2D<uint32_t> earClip;
     std::vector<MathLib::HVector2> points = {
         {0, 0}, {4, 0}, {5, 2}, {3, 5}, {1, 4}, {-1, 3}
     };

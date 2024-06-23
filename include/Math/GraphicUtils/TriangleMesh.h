@@ -6,38 +6,39 @@ namespace MathLib
 {
 	namespace MeshTool
 	{
+		template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
 		class TriangleMesh
 		{
 		public:
 			TriangleMesh() = delete;
-			TriangleMesh(const std::vector<HVector3> &vertices, const std::vector<HVector3> &normals, const std::vector<std::vector<HVector2>> &texCoords, const std::vector<TriangleIndex> &triangles)
+			TriangleMesh(const std::vector<HVector3> &vertices, const std::vector<HVector3> &normals, const std::vector<std::vector<HVector2>> &texCoords, const std::vector<TriangleIndex<IntType>> &triangles)
 				: m_Vertices(vertices), m_Normals(normals), m_TexCoords(texCoords), m_Triangles(triangles)
 			{
 				UpdateBoundingBox();
 			}
 
-			TriangleMesh(const std::vector<HVector3> &vertices, const std::vector<std::vector<HVector2>> &texCoords, const std::vector<TriangleIndex> &triangles)
+			TriangleMesh(const std::vector<HVector3> &vertices, const std::vector<std::vector<HVector2>> &texCoords, const std::vector<TriangleIndex<IntType>> &triangles)
 				: m_Vertices(vertices), m_TexCoords(texCoords), m_Triangles(triangles)
 			{
 				ComputeNormals();
 				UpdateBoundingBox();
 			}
 
-			TriangleMesh(const std::vector<HVector3>& vertices, const std::vector<TriangleIndex>& triangles)
+			TriangleMesh(const std::vector<HVector3> &vertices, const std::vector<TriangleIndex<IntType>> &triangles)
 				: m_Vertices(vertices), m_Triangles(triangles)
 			{
 				ComputeNormals();
 				UpdateBoundingBox();
 			}
 
-			TriangleMesh(const std::vector<HVector3>& vertices, const std::vector<uint32_t>& triangles)
+			TriangleMesh(const std::vector<HVector3> &vertices, const std::vector<IntType> &triangles)
 				: m_Vertices(vertices)
-			{				
+			{
 				if (triangles.size() % 3 != 0)
 					return;
 				const uint32_t triangleCount = triangles.size() / 3;
 				m_Triangles.resize(triangleCount);
-				for(uint32_t i=0;i<triangleCount;i++)
+				for (uint32_t i = 0; i < triangleCount; i++)
 				{
 					m_Triangles[i] = TriangleIndex(triangles[3 * i], triangles[3 * i + 1], triangles[3 * i + 2]);
 				}
@@ -82,7 +83,7 @@ namespace MathLib
 				return m_TexCoords;
 			}
 
-			const std::vector<TriangleIndex> &GetTriangles() const
+			const std::vector<TriangleIndex<IntType>> &GetTriangles() const
 			{
 				return m_Triangles;
 			}
@@ -92,9 +93,9 @@ namespace MathLib
 				return m_Vertices.size();
 			}
 
-			const std::vector<HAABBox3D> &GetBoundingBoxes() 
+			const std::vector<HAABBox3D> &GetBoundingBoxes()
 			{
-				if(m_BoundingBoxes.empty())
+				if (m_BoundingBoxes.empty())
 					UpdateBoundingBoxes();
 				return m_BoundingBoxes;
 			}
@@ -113,7 +114,7 @@ namespace MathLib
 			{
 				m_Normals.resize(m_Vertices.size(), HVector3(0.0f, 0.0f, 0.0f));
 
-				for (const TriangleIndex& triangle : m_Triangles)
+				for (const TriangleIndex &triangle : m_Triangles)
 				{
 					HVector3 normal = (m_Vertices[triangle.vertices[1]] - m_Vertices[triangle.vertices[0]]).cross(m_Vertices[triangle.vertices[2]] - m_Vertices[triangle.vertices[0]]).normalized();
 
@@ -123,7 +124,7 @@ namespace MathLib
 					}
 				}
 
-				for (HVector3& normal : m_Normals)
+				for (HVector3 &normal : m_Normals)
 				{
 					normal.normalize();
 				}
@@ -135,7 +136,7 @@ namespace MathLib
 
 				for (size_t i = 0; i < m_Triangles.size(); i++)
 				{
-					const TriangleIndex& triangle = m_Triangles[i];
+					const TriangleIndex &triangle = m_Triangles[i];
 					m_BoundingBoxes[i].setEmpty();
 					m_BoundingBoxes[i].extend(m_Vertices[triangle.vertices[0]]);
 					m_BoundingBoxes[i].extend(m_Vertices[triangle.vertices[1]]);
@@ -148,7 +149,7 @@ namespace MathLib
 			{
 				m_BoundingBox.setEmpty();
 
-				for (const HVector3& vertex : m_Vertices)
+				for (const HVector3 &vertex : m_Vertices)
 				{
 					m_BoundingBox.extend(vertex);
 				}
@@ -160,7 +161,7 @@ namespace MathLib
 			std::vector<HVector3> m_Vertices;
 			std::vector<HVector3> m_Normals;
 			std::vector<std::vector<HVector2>> m_TexCoords;
-			std::vector<TriangleIndex> m_Triangles;
+			std::vector<TriangleIndex<IntType>> m_Triangles;
 		};
 
 	} // namespace MeshTool

@@ -4,13 +4,19 @@ namespace MathLib
 {
     namespace Geometry2D
     {
+        template<typename IntType>
         struct CircumCircle
         {
             HVector2 m_Center;
             HReal m_Radius;
             CircumCircle() {}
 
-            CircumCircle(const std::vector<HVector2> &points, uint32_t v0, uint32_t v1, uint32_t v2)
+            CircumCircle(const std::vector<HVector2> &points, const TriangleIndex<IntType> &triangle)
+            {
+                Update(points, triangle[0], triangle[1], triangle[2]);
+            }
+
+            CircumCircle(const std::vector<HVector2> &points, IntType v0, IntType v1, IntType v2)
             {
                 Update(points, v0, v1, v2);
             }
@@ -25,10 +31,10 @@ namespace MathLib
                 HMatrix2 A_matrix;
                 HVector2 b_vector;
 
-                A_matrix(0, 0) = 2 * (p1.x() - p0.x());
-                A_matrix(0, 1) = 2 * (p1.y() - p0.y());
-                A_matrix(1, 0) = 2 * (p2.x() - p0.x());
-                A_matrix(1, 1) = 2 * (p2.y() - p0.y());
+                A_matrix(0, 0) = 2 * (p1[0] - p0[0]);
+                A_matrix(0, 1) = 2 * (p1[1] - p0[1]);
+                A_matrix(1, 0) = 2 * (p2[0] - p0[0]);
+                A_matrix(1, 1) = 2 * (p2[1] - p0[1]);
 
                 b_vector(0) = p1.squaredNorm() - p0.squaredNorm();
                 b_vector(1) = p2.squaredNorm() - p0.squaredNorm();
@@ -37,7 +43,7 @@ namespace MathLib
                 m_Radius = (m_Center - p0).norm();
             }
 
-            void Update(const std::vector<HVector2> &points, uint32_t v0, uint32_t v1, uint32_t v2)
+            void Update(const std::vector<HVector2> &points, IntType v0, IntType v1, IntType v2)
             {
                 const HVector2 &p0 = points[v0];
                 const HVector2 &p1 = points[v1];
@@ -52,9 +58,66 @@ namespace MathLib
                 return dist - m_Radius <= H_EPSILON;
             }
         };
+        typedef CircumCircle<uint8_t> CircumCircle8;
+        typedef CircumCircle<uint16_t> CircumCircle16; 
+        typedef CircumCircle<uint32_t> CircumCircle32;
+        typedef CircumCircle<uint64_t> CircumCircle64;
     } // namespace Geometry2D
     namespace Geometry
     {
+        struct CircumSphere
+        {
+            HVector3 m_Center;
+            HReal m_Radius;
+            CircumSphere() {}
+            template <typename IntType>
+            CircumSphere(const std::vector<HVector3> &points, const TetrahedronIndex<IntType> &tetrahedron)
+            {
+                Update(points, tetrahedron[0], tetrahedron[1], tetrahedron[2], tetrahedron[3]);
+            }
+
+            CircumSphere(const std::vector<HVector3> &points, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3)
+            {
+                Update(points, v0, v1, v2, v3);
+            }
+
+            CircumSphere(const HVector3 &p0, const HVector3 &p1, const HVector3 &p2, const HVector3 &p3)
+            {
+                Update(p0, p1, p2, p3);
+            }
+
+            void Update(const HVector3 &p0, const HVector3 &p1, const HVector3 &p2, const HVector3 &p3)
+            {
+                HMatrix4 A_matrix;
+                HVector4 b_vector;
+
+                A_matrix(0, 0) = 2 * (p1[0] - p0[0]);
+                A_matrix(0, 1) = 2 * (p1[1] - p0[1]);
+                A_matrix(0, 2) = 2 * (p1[2] - p0[2]);
+                A_matrix(1, 0) = 2 * (p2[0] - p0[0]);
+                A_matrix(1, 1) = 2 * (p2[1] - p0[1]);
+                A_matrix(1, 2) = 2 * (p2[2] - p0[2]);
+                A_matrix(2, 0) = 2 * (p3[0] - p0[0]);
+                A_matrix(2, 1) = 2 * (p3[1] - p0[1]);
+                A_matrix(2, 2) = 2 * (p3[2] - p0[2]);
+
+                // b_vector(0) = p1.squaredNorm() - p0.squaredNorm();
+                // b_vector(1) = p2.squaredNorm() - p0.squaredNorm();
+                // b_vector(2) = p3.squaredNorm() - p0.squaredNorm();
+
+                // m_Center = A_matrix.colPivHouseholderQr().solve(b_vector);
+                // m_Radius = (m_Center - p0).norm();
+            }
+
+            void Update(const std::vector<HVector3> &points, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3)
+            {
+                const HVector3 &p0 = points[v0];
+                const HVector3 &p1 = points[v1];
+                const HVector3 &p2 = points[v2];
+                const HVector3 &p3 = points[v3];
+                Update(p0, p1, p2, p3);
+            }
+        };
         struct Plane
         {
             Plane() = default;
