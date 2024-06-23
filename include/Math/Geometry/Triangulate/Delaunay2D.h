@@ -338,7 +338,7 @@ namespace MathLib
 
 					for (auto &edgeIt : edges)
 					{
-						const EdgeIndexUI32 &edge = edgeIt.first;
+						const InternalEdgeIndex&edge = edgeIt.first;
 						if (!edgeIt.second)
 							continue;
 
