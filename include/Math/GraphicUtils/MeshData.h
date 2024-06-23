@@ -37,8 +37,8 @@ namespace MathLib
 
 			for (const auto &edge : edges)
 			{
-				lines.push_back(edge.first);
-				lines.push_back(edge.second);
+				lines.push_back(edge.v0);
+				lines.push_back(edge.v1);
 			}
 
 			return lines;
