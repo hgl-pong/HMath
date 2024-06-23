@@ -4,7 +4,7 @@ namespace MathLib
 {
     namespace Geometry2D
     {
-        template<typename IntType>
+        template<typename IntType,typename = std::enable_if_t<std::is_integral<IntType>::value>>
         struct CircumCircle
         {
             HVector2 m_Center;
@@ -26,7 +26,7 @@ namespace MathLib
                 Update(p0, p1, p2);
             }
 
-            void Update(const HVector2 &p0, const HVector2 &p1, const HVector2 &p2)
+            void Update(const HVector2& p0, const HVector2& p1, const HVector2& p2)
             {
                 HMatrix2 A_matrix;
                 HVector2 b_vector;
