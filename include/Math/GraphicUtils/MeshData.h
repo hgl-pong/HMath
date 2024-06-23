@@ -23,24 +23,19 @@ namespace MathLib
 		{
 			typedef EdgeIndex<IntType> InternalEdgeIndex;
 			std::vector<IntType> lines;
-			std::unordered_set<InternalEdgeIndex> edges;
 			for (size_t i = 0; i < triangles.size(); i += 3)
 			{
 				int v0 = triangles[i];
 				int v1 = triangles[i + 1];
 				int v2 = triangles[i + 2];
 
-				edges.insert(InternalEdgeIndex(v0, v1));
-				edges.insert(InternalEdgeIndex(v1, v2));
-				edges.insert(InternalEdgeIndex(v2, v0));
+				lines.push_back(v0);
+				lines.push_back(v1);
+				lines.push_back(v1);
+				lines.push_back(v2);
+				lines.push_back(v2);
+				lines.push_back(v0);
 			}
-
-			for (const auto &edge : edges)
-			{
-				lines.push_back(edge.v0);
-				lines.push_back(edge.v1);
-			}
-
 			return lines;
 		}
 
