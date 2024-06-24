@@ -15,6 +15,14 @@ file(GLOB SOURCE_FILES
 )
 add_executable(${MATH_LIB} ${SOURCE_FILES})
 
+add_definitions(-DUSE_OPENMP)
+
+if (MSVC)
+    add_compile_options(/openmp)
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+endif()
+
 find_package(Eigen3 CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)

@@ -16,8 +16,8 @@ namespace MathLib
 
             int Solve(HVectorX &x, const HVectorX &b) override
             {
-                const HSparseMatrix &matrix = smart_cast<HSparseMatrix &>(m_Matrix).getEigenMatrix();
-                Eigen::SimplicialLDLT<HSparseMatrix> solver;
+                const HSparseMatrixColMajor& matrix = smart_cast<HSparseMatrixColMajor&>(&m_Matrix.matrix());
+                Eigen::SimplicialLDLT<HSparseMatrixColMajor> solver;
                 solver.compute(matrix);
 
                 if (solver.info() != Eigen::Success)
@@ -55,7 +55,7 @@ namespace MathLib
 
             int Solve(HVectorX& x, const HVectorX& b) override
             {
-                const HSparseMatrixRowMajor& matrix = smart_cast<HSparseMatrixRowMajor&>(m_Matrix).getEigenMatrix();
+                const HSparseMatrixRowMajor& matrix = smart_cast<HSparseMatrixRowMajor&>(&m_Matrix.matrix());
                 Eigen::ConjugateGradient<HSparseMatrixRowMajor, Eigen::Upper> solver;
                 solver.setTolerance(1e-7);
                 solver.setMaxIterations(10000);

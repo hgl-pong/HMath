@@ -71,7 +71,7 @@ namespace MathLib
 				return m_Tetrahedrons.size();
 			}
 
-			bool GetMeshData(GraphicUtils::MeshData& meshdata)
+			bool GetMeshData(GraphicUtils::MeshData32& meshdata)
 			{
 				std::vector<HVector3>& vertices = meshdata.m_Vertices;
 				std::vector<uint32_t>& indices = meshdata.m_Indices;

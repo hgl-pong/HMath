@@ -169,36 +169,11 @@ namespace MathLib
 		inline bool TriTriIntersect2D(const HVector2 &v0, const HVector2 &v1, const HVector2 &v2,
 									  const HVector2 &u0, const HVector2 &u1, const HVector2 &u2)
 		{
-			if (IsPointInTriangle2D(v0, u0, u1, u2))
+			if (EdgeIntersectTriangle2D(v0, v1, u0, u1, u2))
 				return true;
-			if (IsPointInTriangle2D(v1, u0, u1, u2))
+			if (EdgeIntersectTriangle2D(v1, v2, u0, u1, u2))
 				return true;
-			if (IsPointInTriangle2D(v2, u0, u1, u2))
-				return true;
-			if (IsPointInTriangle2D(u0, v0, v1, v2))
-				return true;
-			if (IsPointInTriangle2D(u1, v0, v1, v2))
-				return true;
-			if (IsPointInTriangle2D(u2, v0, v1, v2))
-				return true;
-
-			if (EdgeIntersectEdge2D(v0, v1, u0, u1))
-				return true;
-			if (EdgeIntersectEdge2D(v0, v1, u1, u2))
-				return true;
-			if (EdgeIntersectEdge2D(v0, v1, u2, u0))
-				return true;
-			if (EdgeIntersectEdge2D(v1, v2, u0, u1))
-				return true;
-			if (EdgeIntersectEdge2D(v1, v2, u1, u2))
-				return true;
-			if (EdgeIntersectEdge2D(v1, v2, u2, u0))
-				return true;
-			if (EdgeIntersectEdge2D(v2, v0, u0, u1))
-				return true;
-			if (EdgeIntersectEdge2D(v2, v0, u1, u2))
-				return true;
-			if (EdgeIntersectEdge2D(v2, v0, u2, u0))
+			if (EdgeIntersectTriangle2D(v2, v0, u0, u1, u2))
 				return true;
 			return false;
 		}
@@ -245,31 +220,14 @@ namespace MathLib
 			return true;
 		}
 
-		inline bool TriTriCoplanar3D(const HVector3 &v0, const HVector3 &v1, const HVector3 &v2, const HVector3 &u0, const HVector3 &u1, const HVector3 &u2, const HVector3 &n1, const HVector3 &n2)
+		inline bool TriTriCoplanar3D(const HVector3 &v0, const HVector3 &v1, const HVector3 &v2, const HVector3 &u0, const HVector3 &u1, const HVector3 &u2)
 		{
-			HReal d1 = n1.dot(v0);
-			HReal d2 = n2.dot(u0);
-			HReal d = n1.dot(u0) - d1;
-			if (d < -H_EPSILON || d > H_EPSILON)
-				return false;
-			HVector3 e1 = v1 - v0;
-			HVector3 e2 = v2 - v0;
-			HVector3 e3 = u1 - u0;
-			HVector3 e4 = u2 - u0;
-			HVector3 p = e1.cross(e2);
-			HReal det = e3.dot(p);
-			if (det > -H_EPSILON && det < H_EPSILON)
-				return false;
-			HReal invDet = 1.0f / det;
-			HVector3 tvec = u0 - v0;
-			HReal u = tvec.dot(p) * invDet;
-			if (u < 0 || u > 1)
-				return false;
-			HVector3 q = tvec.cross(e3);
-			HReal v = e1.dot(q) * invDet;
-			if (v < 0 || u + v > 1)
-				return false;
-			return true;
+			Geometry::Plane p1, p2;
+			p1.Set(v0, v1, v2);
+			p2.Set(u0, u1, u2);
+			const HVector3 p1n = p1.m_Normal * p1.m_Distance;
+			const HVector3 p2n = p2.m_Normal * p2.m_Distance;
+			return Equal(p1n[0], p2n[0]) && Equal(p1n[1], p2n[1]) && Equal(p1n[2], p2n[2]);
 		}
 
 		inline bool TriTriIntersect3D(const HVector3 &v0, const HVector3 &v1, const HVector3 &v2, const HVector3 &u0, const HVector3 &u1, const HVector3 &u2, HVector3 &p0, HVector3 &p1)

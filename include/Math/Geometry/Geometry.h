@@ -5,7 +5,7 @@ namespace MathLib
 {
     namespace Geometry2D
     {
-        template<typename IntType,typename = std::enable_if_t<std::is_integral<IntType>::value>>
+        template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
         struct CircumCircle
         {
             HVector2 m_Center;
@@ -27,7 +27,7 @@ namespace MathLib
                 Update(p0, p1, p2);
             }
 
-            void Update(const HVector2& p0, const HVector2& p1, const HVector2& p2)
+            void Update(const HVector2 &p0, const HVector2 &p1, const HVector2 &p2)
             {
                 HMatrix2 A_matrix;
                 HVector2 b_vector;
@@ -60,7 +60,7 @@ namespace MathLib
             }
         };
         typedef CircumCircle<uint8_t> CircumCircle8;
-        typedef CircumCircle<uint16_t> CircumCircle16; 
+        typedef CircumCircle<uint16_t> CircumCircle16;
         typedef CircumCircle<uint32_t> CircumCircle32;
         typedef CircumCircle<uint64_t> CircumCircle64;
     } // namespace Geometry2D
@@ -125,6 +125,12 @@ namespace MathLib
             Plane(const HVector3 &normal, HReal distance)
                 : m_Normal(normal), m_Distance(distance)
             {
+            }
+
+            void Set(const HVector3 &p0, const HVector3 &p1, const HVector3 &p2)
+            {
+                m_Normal = (p1 - p0).cross(p2 - p0).normalized();
+                m_Distance = m_Normal.dot(p0);
             }
 
             void Set(const HVector3 &position, const HVector3 &normal)

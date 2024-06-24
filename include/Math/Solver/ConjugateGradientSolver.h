@@ -25,7 +25,7 @@ namespace MathLib
 
             void SetMaxIterations(uint32_t maxIterations) { m_MaxIterations = maxIterations; }
             void SetTolerance(HReal tolerance) { m_Tolerance = tolerance; }
-            void SetPreconditioner(PreconditionerTool::Preconditioner *preconditioner) { m_Preconditioner = preconditioner; }
+            void SetPreconditioner(PreconditionerTool::Preconditioner *preconditioner) { m_Preconditioner = std::make_unique<PreconditionerTool::Preconditioner>(preconditioner); }
             uint32_t GetIterations() const { return m_Iterations; }
             uint32_t GetMaxIterations() const { return m_MaxIterations; }
             HReal GetTolerance() const { return m_Tolerance; }
@@ -35,8 +35,7 @@ namespace MathLib
                 m_Iterations = 0;
                 m_Preconditioner = std::make_unique<PreconditionerTool::DiagonalPreconditioner>(m_Matrix);
 
-                HVectorX r = b;
-                m_Matrix.multiply(x, r, -1.0, 1.0);
+                HVectorX r = b - m_Matrix * x;
 
                 HVectorX z(m_Matrix.cols());
                 m_Preconditioner->Apply(z, r);
@@ -45,10 +44,8 @@ namespace MathLib
                 HVectorX p = z;
                 HVectorX w(m_Matrix.rows());
 
-                while (r.norm() >= m_Tolerance && m_Iterations < m_MaxIterations)
-                {
-                    w.setZero();
-                    m_Matrix.multiply(w, p);
+                while (r.norm() >= m_Tolerance && m_Iterations < m_MaxIterations) {
+                    w = m_Matrix * p;
 
                     HReal alpha = rkDotzk / p.dot(w);
                     x += alpha * p;
@@ -65,13 +62,9 @@ namespace MathLib
 
                 m_Preconditioner.reset();
 #ifdef _DEBUG
-                HVectorX residual(x.size());
-                residual.setZero();
-                m_Matrix.multiply(residual, x);
-                residual -= b;
-                HReal infNorm = std::fabs(residual.maxCoeff());
-                if (infNorm > 1.0e-6)
-                {
+                HVectorX residual = m_Matrix * x - b;
+                HReal infNorm = residual.cwiseAbs().maxCoeff();
+                if (infNorm > 1.0e-6) {
                     std::cout << "ConjugateGradientSolver::Solve() - residual inf norm: " << infNorm << std::endl;
                     return -1;
                 }
