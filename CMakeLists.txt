@@ -41,3 +41,5 @@ target_link_libraries(${MATH_LIB} PRIVATE
 enable_testing()
 add_test(AllTestsInMain main)
 
+add_subdirectory(examples)
+

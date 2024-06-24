@@ -1,4 +1,3 @@
-#include <Math/Geometry/Triangulate/Delaunay3D.h>
 #include <Math/Geometry/Triangulate/Delaunay2D.h>
 #include <Math/GraphicUtils/FrameProfiler.h>
 
@@ -15,7 +14,7 @@ namespace context {
     std::vector<MathLib::HVector2> points;
 } /* namespace context */
 MathLib::GraphicUtils::FrameProfiler profiler;
-MathLib::Geometry::Triangulate::Delaunay2D delaunay;
+MathLib::Geometry::Triangulate::Delaunay2DUI32 delaunay;
 uint32_t currPosIndex = 0;
 void displayMe()
 {

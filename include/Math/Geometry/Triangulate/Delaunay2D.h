@@ -3,9 +3,7 @@
 #include <Math/HashGrid.h>
 #include <Math/GraphicUtils/MeshCommon.h>
 #include <Math/Geometry/Geometry.h>
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
+#include <unordered_set>
 namespace MathLib
 {
 	namespace Geometry
@@ -51,7 +49,7 @@ namespace MathLib
 				inline static HVector2 m_SuperP0{-2.5, -1};
 				inline static HVector2 m_SuperP1{0, 5};
 				inline static HVector2 m_SuperP2{2.5, -1};
-				static DTriangle m_SuperTriangle = DTriangle(Max_IntType - 2, Max_IntType - 1, Max_IntType,
+				inline static DTriangle m_SuperTriangle = DTriangle(Max_IntType - 2, Max_IntType - 1, Max_IntType,
 															 InternnalCircumCircle(m_SuperP0, m_SuperP1, m_SuperP2));
 
 			public:
