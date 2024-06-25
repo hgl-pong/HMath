@@ -4,7 +4,7 @@
 #define HVECTOR_ROUND(dim) inline HVector##dim##UI VectorRound##dim(const HVector##dim &v)
 namespace MathLib
 {
-	template <uint32_t N>
+	template <int N>
 	inline Eigen::Matrix<HReal, N, 1> HadamardProduct(const Eigen::Matrix<HReal, N, 1> &a, const Eigen::Matrix<HReal, N, 1> &b)
 	{
 		return (a.array() * b.array()).matrix();
@@ -22,7 +22,7 @@ namespace MathLib
 		return a + t * (b - a);
 	}
 
-	template <uint32_t N>
+	template <int N>
 	inline Eigen::Matrix<HReal, N, 1> Lerp(const Eigen::Matrix<HReal, N, 1> &a, const Eigen::Matrix<HReal, N, 1> &b, const Eigen::Matrix<HReal, N, 1> &t)
 	{
 		return a + HadamardProduct<N>(t, b - a);
@@ -46,18 +46,31 @@ namespace MathLib
 		Lerp(temp1, temp2, w, result);
 	}
 
+	template <typename DataType>
+	inline int Sign(const DataType &value)
+	{
+		return (value > DataType(0)) - (value < DataType(0));
+	}
+
+	template <int N>
+	inline Eigen::Matrix<HReal, N, 1> Sign(const Eigen::Matrix<HReal, N, 1> &value)
+	{
+		return value.unaryExpr([](const HReal &v) -> HReal
+							   { return (v > HReal(0)) - (v < HReal(0)); });
+	}
+
 	inline HReal Clamp(const HReal &a, const HReal &b, const HReal &c)
 	{
 		return std::max(b, std::min(a, c));
 	}
 
-	template <uint32_t N>
+	template <int N>
 	inline Eigen::Matrix<HReal, N, 1> Clamp(const Eigen::Matrix<HReal, N, 1> &value, const Eigen::Matrix<HReal, N, 1> &min, const Eigen::Matrix<HReal, N, 1> &max)
 	{
 		return value.cwiseMax(max).cwiseMin(min);
 	}
 
-	template <uint32_t N>
+	template <int N>
 	inline Eigen::Matrix<HReal, N, 1> Clamp(const Eigen::Matrix<HReal, N, 1> &value, const HReal &min, const HReal &max)
 	{
 		return value.cwiseMax(max).cwiseMin(min);
@@ -78,9 +91,10 @@ namespace MathLib
 	}
 
 	template <typename HReal, uint32_t N>
-	inline Eigen::Matrix<HReal, N, 1> Step(const Eigen::Matrix<HReal, N, 1>& value, const HReal& right)
+	inline Eigen::Matrix<HReal, N, 1> Step(const Eigen::Matrix<HReal, N, 1> &value, const HReal &right)
 	{
-		return value.unaryExpr([right](const HReal& v) -> HReal { return v < right ? HReal(0) : HReal(1); });
+		return value.unaryExpr([right](const HReal &v) -> HReal
+							   { return v < right ? HReal(0) : HReal(1); });
 	}
 
 	HVECTOR_ROUND(2)
@@ -97,14 +111,14 @@ namespace MathLib
 	{
 		return HVector4UI(std::round(v[0]), std::round(v[1]), std::round(v[2]), std::round(v[3]));
 	}
-	
-	template <uint32_t N>
+
+	template <int N>
 	inline uint32_t GetDimension(const Eigen::Matrix<HReal, N, 1> &v)
 	{
 		return N;
 	}
 
-	template <uint32_t N>
+	template <int N>
 	inline uint32_t GetDimension(const Eigen::AlignedBox<HReal, N> &box)
 	{
 		return N;

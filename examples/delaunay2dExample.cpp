@@ -13,7 +13,7 @@ namespace context {
 
     std::vector<MathLib::HVector2> points;
 } /* namespace context */
-MathLib::GraphicUtils::FrameProfiler profiler;
+
 MathLib::Geometry::Triangulate::Delaunay2DUI32 delaunay;
 uint32_t currPosIndex = 0;
 void displayMe()
@@ -53,7 +53,7 @@ void displayMe()
     }
     glEnd();
     {
-        PROFILE_FRAME("find points neighbors");
+        PROFILE_TIMER("find points neighbors");
 
         auto neighbors = delaunay.Neighbors()[currPosIndex];
         glColor3f(0, 1, 0);
@@ -91,7 +91,7 @@ void mouse_callback(int button, int state, int x, int y)
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_UP) {
             context::points.push_back({ x, y });
-            PROFILE_FRAME("insert point");
+            PROFILE_TIMER("insert point");
             delaunay.InsertPoint({ x,y });
         }
         break;
@@ -130,7 +130,7 @@ void mouse_callback(int button, int state, int x, int y)
             {
                 currPosIndex = 0;
             }
-            PROFILE_FRAME("erase point");
+            PROFILE_TIMER("erase point");
             delaunay.ErasePoint(i);
         }
         break;
@@ -141,7 +141,7 @@ void mouse_callback(int button, int state, int x, int y)
 int main(int argc, char** argv)
 {
     {
-        PROFILE_FRAME("set points");
+        PROFILE_TIMER("set points");
         for (int i = 0; i < 100; i++)
         {
             int x = rand() % 600;

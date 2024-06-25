@@ -1,6 +1,7 @@
 #pragma once
 #include <Math/Math.h>
 #include <Math/Geometry/Intersection.h>
+#include <Math/Geometry/Triangulate/earcut.hpp>
 namespace MathLib
 {
 	namespace Geometry
@@ -10,6 +11,22 @@ namespace MathLib
 			template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
 			class EarClip2D
 			{
+			private:
+				struct Node
+				{
+					IntType vertexIndex;
+					HVector2 vertex;
+					Node *prev = nullptr;
+					Node *next = nullptr;
+					IntType z = 0;
+					Node *prevZ = nullptr;
+					Node *nextZ = nullptr;
+					bool operator==(const Node &rhs) const
+					{
+						return vertex == rhs.vertex;
+					}
+				};
+
 			public:
 				EarClip2D() {}
 				~EarClip2D() {}
@@ -119,6 +136,7 @@ namespace MathLib
 				}
 
 			private:
+				HAABBox2D m_BoundingBox;
 				std::vector<HVector2> m_Points;
 				PolygonIndex<IntType> m_Polygon;
 				std::vector<uint32_t> m_Triangles;

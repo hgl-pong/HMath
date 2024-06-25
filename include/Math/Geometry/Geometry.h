@@ -146,17 +146,15 @@ namespace MathLib
 
             bool IsFront(const HVector3 &point) const
             {
-                return Distance(point) > 0;
+                return Greater(Distance(point), 0);
             }
 
             bool IsFront(const HAABBox3D &aabb) const
             {
                 HVector3 center = aabb.center();
-                HVector3 extents = aabb.sizes() / 2.0f;
-                HReal r = extents.x() * std::abs(m_Normal[0]) +
-                          extents.y() * std::abs(m_Normal[1]) +
-                          extents.z() * std::abs(m_Normal[2]);
-                return Distance(center) > -r;
+                HVector3 extents = aabb.sizes() / 2.f;
+                HReal r = extents.dot(m_Normal);
+                return GreaterEqual(Distance(center), -r);
             }
 
             HVector3 m_Normal;
