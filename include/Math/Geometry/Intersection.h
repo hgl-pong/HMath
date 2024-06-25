@@ -178,6 +178,12 @@ namespace MathLib
 			return false;
 		}
 
+		inline bool TriTriIntersect2D(const HVector2 &v0, const HVector2 &v1, const HVector2 &v2,
+									  const HVector2 &u0, const HVector2 &u1, const HVector2 &u2, HVector2 &p0, HVector2 &p1)
+		{
+			return false;
+		}
+
 		inline bool TriTriOverlap2D(const HVector2 &v0, const HVector2 &v1, const HVector2 &v2, const HVector2 &u0, const HVector2 &u1, const HVector2 &u2)
 		{
 			if (OrientationUtils::Orientation2D(v0, v1, u0) < 0.f)
@@ -189,6 +195,33 @@ namespace MathLib
 				return TriTriIntersect2D(v0, v1, v2, u1, u0, u2);
 			else
 				return TriTriIntersect2D(v0, v1, v2, u1, u2, u0);
+		}
+
+		bool PlaneIntersectAABBox(const Geometry::Plane &plane, const HAABBox3D &aabb, HVector3 &p0, HVector3 &p1, HVector3 &p2, HVector3 &p3, HVector3 &p4, HVector3 &p5, HVector3 &p6, HVector3 &p7)
+		{
+			HVector3 min = aabb.min();
+			HVector3 max = aabb.max();
+			const HVector3 &normal = plane.m_Normal;
+			if (normal.isZero())
+				return false;
+			bool side = plane.IsFront(min);
+			if (side != plane.IsFront(max))
+				return true;
+			if (side != plane.IsFront(HVector3(min[0], min[1], max[2])))
+				return true;
+			if (side != plane.IsFront(HVector3(min[0], max[1], min[2])))
+				return true;
+			if (side != plane.IsFront(HVector3(min[0], max[1], max[2])))
+				return true;
+			if (side != plane.IsFront(HVector3(max[0], min[1], min[2])))
+				return true;
+			if (side != plane.IsFront(HVector3(max[0], min[1], max[2])))
+				return true;
+			if (side != plane.IsFront(HVector3(max[0], max[1], min[2])))
+				return true;
+			if (side != plane.IsFront(HVector3(max[0], max[1], max[2])))
+				return true;
+			return false;
 		}
 
 		template <uint32_t N>
