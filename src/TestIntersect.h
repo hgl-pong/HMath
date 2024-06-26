@@ -11,7 +11,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle2D(p, v0, v1, v2)) << "Point should be inside the triangle.";
+        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle(p, v0, v1, v2)) << "Point should be inside the triangle.";
     }
 
     {
@@ -20,7 +20,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle2D(p_out, v0, v1, v2)) << "Point should be outside the triangle.";
+        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle(p_out, v0, v1, v2)) << "Point should be outside the triangle.";
     }
 
     {
@@ -29,7 +29,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle2D(p_vertex, v0, v1, v2)) << "Point should be on the triangle vertex.";
+        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle(p_vertex, v0, v1, v2)) << "Point should be on the triangle vertex.";
     }
 
     {
@@ -38,7 +38,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle2D(p_edge, v0, v1, v2)) << "Point should be on the triangle edge.";
+        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle(p_edge, v0, v1, v2)) << "Point should be on the triangle edge.";
     }
 
     {
@@ -47,7 +47,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle2D(p_near, v0, v1, v2)) << "Point should be near but outside the triangle.";
+        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle(p_near, v0, v1, v2)) << "Point should be near but outside the triangle.";
     }
 
     {
@@ -56,7 +56,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle2D)
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(2, 0);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle2D(p_degenerate, v0, v1, v2)) << "Point should be on the degenerate triangle (line segment).";
+        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle(p_degenerate, v0, v1, v2)) << "Point should be on the degenerate triangle (line segment).";
     }
 }
 
@@ -68,7 +68,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle3D)
         MathLib::HVector3 v1(1, 0, 0);
         MathLib::HVector3 v2(0, 1, 0);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle3D(p, v0, v1, v2)) << "Point should be inside the triangle.";
+        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle(p, v0, v1, v2)) << "Point should be inside the triangle.";
     }
 
     {
@@ -77,7 +77,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle3D)
         MathLib::HVector3 v1(1, 0, 0);
         MathLib::HVector3 v2(0, 1, 0);
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle3D(p_out, v0, v1, v2)) << "Point should be outside the triangle.";
+        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle(p_out, v0, v1, v2)) << "Point should be outside the triangle.";
     }
 
     {
@@ -86,7 +86,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle3D)
         MathLib::HVector3 v1(1, 0, 0);
         MathLib::HVector3 v2(0, 1, 0);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle3D(p_vertex, v0, v1, v2)) << "Point should be on the triangle vertex.";
+        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle(p_vertex, v0, v1, v2)) << "Point should be on the triangle vertex.";
     }
 
     {
@@ -95,7 +95,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle3D)
         MathLib::HVector3 v1(1, 0, 0);
         MathLib::HVector3 v2(0, 1, 0);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle3D(p_edge, v0, v1, v2)) << "Point should be on the triangle edge.";
+        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle(p_edge, v0, v1, v2)) << "Point should be on the triangle edge.";
     }
 
     {
@@ -104,7 +104,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle3D)
         MathLib::HVector3 v1(1, 0, 0);
         MathLib::HVector3 v2(0, 1, 0);
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle3D(p_near, v0, v1, v2)) << "Point should be near but outside the triangle.";
+        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle(p_near, v0, v1, v2)) << "Point should be near but outside the triangle.";
     }
 
     {
@@ -113,7 +113,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle3D)
         MathLib::HVector3 v1(1, 0, 0);
         MathLib::HVector3 v2(0, 1, 0);
 
-        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle3D(p_out_of_plane, v0, v1, v2)) << "Point should be outside the triangle plane.";
+        EXPECT_FALSE(MathLib::IntersectionUtils::IsPointInTriangle(p_out_of_plane, v0, v1, v2)) << "Point should be outside the triangle plane.";
     }
 
     {
@@ -122,7 +122,7 @@ TEST(IntersectionUtilsTest, IsPointInTriangle3D)
         MathLib::HVector3 v1(1, 0, 0);
         MathLib::HVector3 v2(2, 0, 0);
 
-        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle3D(p_degenerate, v0, v1, v2)) << "Point should be on the degenerate triangle (line segment).";
+        EXPECT_TRUE(MathLib::IntersectionUtils::IsPointInTriangle(p_degenerate, v0, v1, v2)) << "Point should be on the degenerate triangle (line segment).";
     }
 }
 
@@ -173,7 +173,7 @@ TEST(IntersectionUtilsTest, RayIntersectTriangle2D)
         MathLib::HVector2 v0(0, 0);
         MathLib::HVector2 v1(1, 0);
         MathLib::HVector2 v2(0, 1);
-        
+
         EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectTriangle(rayOrigin, rayDir, v0, v1, v2, t, u, v));
         EXPECT_NEAR(t, 0.25, H_EPSILON);
         EXPECT_NEAR(u, 0.25, H_EPSILON);

@@ -5,7 +5,7 @@ namespace MathLib
 {
 	namespace IntersectionUtils
 	{
-		inline bool IsPointInTriangle2D(const HVector2 &p, const HVector2 &v0, const HVector2 &v1, const HVector2 &v2)
+		inline bool IsPointInTriangle(const HVector2 &p, const HVector2 &v0, const HVector2 &v1, const HVector2 &v2)
 		{
 			if (Less(OrientationUtils::Orientation2D(v0, v1, p), 0))
 				return false;
@@ -16,7 +16,7 @@ namespace MathLib
 			return true;
 		}
 
-		inline bool IsPointInTriangle3D(const HVector3 &p, const HVector3 &v0, const HVector3 &v1, const HVector3 &v2)
+		inline bool IsPointInTriangle(const HVector3 &p, const HVector3 &v0, const HVector3 &v1, const HVector3 &v2)
 		{
 			HReal s = OrientationUtils::Orientation3D(v0, v1, v2);
 			HReal a = OrientationUtils::Orientation3D(v0, v1, p);
@@ -28,7 +28,7 @@ namespace MathLib
 			return Equal(sum / s, 1);
 		}
 
-		inline bool IsPointInTriangle3D(const HVector3 &p, const HVector3 &v0, const HVector3 &v1, const HVector3 &v2, const HVector3 &v3)
+		inline bool IsPointInTriangle(const HVector3 &p, const HVector3 &v0, const HVector3 &v1, const HVector3 &v2, const HVector3 &v3)
 		{
 			HReal a = OrientationUtils::Orientation3D(v0, v1, v2, p);
 			HReal b = OrientationUtils::Orientation3D(v1, v2, v3, p);
@@ -37,7 +37,7 @@ namespace MathLib
 			return a >= 0 && b >= 0 && c >= 0 && d >= 0;
 		}
 
-		inline bool IsPointInTriangle3D(const HVector2 &p, const HVector2 &v0, const HVector2 &v1, const HVector2 &v2, HReal &w0, HReal &w1, HReal &w2)
+		inline bool IsPointInTriangle(const HVector2 &p, const HVector2 &v0, const HVector2 &v1, const HVector2 &v2, HReal &w0, HReal &w1, HReal &w2)
 		{
 			HReal a = OrientationUtils::Orientation2D(v0, v1, p);
 			HReal b = OrientationUtils::Orientation2D(v1, v2, p);
@@ -145,9 +145,9 @@ namespace MathLib
 
 		inline bool EdgeIntersectTriangle2D(const HVector2 &v0, const HVector2 &v1, const HVector2 &u0, const HVector2 &u1, const HVector2 &u2)
 		{
-			if (IsPointInTriangle2D(v0, u0, u1, u2))
+			if (IsPointInTriangle(v0, u0, u1, u2))
 				return true;
-			if (IsPointInTriangle2D(v1, u0, u1, u2))
+			if (IsPointInTriangle(v1, u0, u1, u2))
 				return true;
 			if (EdgeIntersectEdge2D(v0, v1, u0, u1))
 				return true;

@@ -2,6 +2,8 @@
 #include <Math/Math.h>
 #include <Math/Geometry/Intersection.h>
 #include <Math/Geometry/Triangulate/earcut.hpp>
+#include <Math/ObjectPool.h>
+#include <Math/Geometry/Orientaion.h>
 namespace MathLib
 {
 	namespace Geometry
@@ -21,6 +23,12 @@ namespace MathLib
 					IntType z = 0;
 					Node *prevZ = nullptr;
 					Node *nextZ = nullptr;
+					bool steiner = false;
+					Node(IntType index, const HVector2 &v) : vertexIndex(index), vertex(v) {}
+					Node(const Node &) = delete;
+					Node &operator=(const Node &) = delete;
+					Node(Node &&) = delete;
+					Node &operator=(Node &&) = delete;
 					bool operator==(const Node &rhs) const
 					{
 						return vertex == rhs.vertex;
@@ -49,41 +57,6 @@ namespace MathLib
 
 				void Triangulate()
 				{
-					m_Triangles.clear();
-					if (m_Polygon.vertices.size() < 3)
-					{
-						return;
-					}
-					if (!_IsClockwise())
-					{
-						std::reverse(m_Polygon.vertices.begin(), m_Polygon.vertices.end());
-					}
-					while (m_Polygon.vertices.size() > 3)
-					{
-						bool found = false;
-						for (size_t i = 0; i < m_Polygon.vertices.size(); i++)
-						{
-							const uint32_t preIndex = (i + m_Polygon.vertices.size() - 1) % m_Polygon.vertices.size();
-							const uint32_t curIndex = i;
-							const uint32_t nextIndex = (i + 1) % m_Polygon.vertices.size();
-							if (_IsEar(preIndex, curIndex, nextIndex))
-							{
-								m_Triangles.push_back(m_Polygon[preIndex]);
-								m_Triangles.push_back(m_Polygon[curIndex]);
-								m_Triangles.push_back(m_Polygon[nextIndex]);
-								m_Polygon.vertices.erase(m_Polygon.vertices.begin() + curIndex);
-								found = true;
-								break;
-							}
-						}
-						if (!found)
-						{
-							break;
-						}
-					}
-					m_Triangles.push_back(m_Polygon[0]);
-					m_Triangles.push_back(m_Polygon[1]);
-					m_Triangles.push_back(m_Polygon[2]);
 				}
 
 				const std::vector<uint32_t> &GetTriangles() const
@@ -112,34 +85,126 @@ namespace MathLib
 					return preEdge[0] * nextEdge[1] - preEdge[1] * nextEdge[0] >= 0.0f;
 				}
 
-				bool _IsEar(const uint32_t &preIndex, const uint32_t &curIndex, const uint32_t &nextIndex) const
+				bool _IsEar(Node *ear) const
 				{
-					const HVector2 &prev = m_Points[m_Polygon[preIndex]];
-					const HVector2 &cur = m_Points[m_Polygon[curIndex]];
-					const HVector2 &next = m_Points[m_Polygon[nextIndex]];
-					if (!_IsConvex(prev, cur, next))
+					const Node *a = ear->prev;
+					const Node *b = ear;
+					const Node *c = ear->next;
+
+					if (GreaterEqual(OrientationUtils::TriangleArea(a->vertex, b->vertex, c->vertex), 0))
+						return false; // reflex, can't be an ear
+
+					Node *p = ear->next->next;
+
+					while (p != ear->prev)
 					{
-						return false;
-					}
-					for (size_t i = 0; i < m_Polygon.vertices.size(); i++)
-					{
-						if (i == preIndex || i == curIndex || i == nextIndex)
-						{
-							continue;
-						}
-						if (IntersectionUtils::IsPointInTriangle2D(m_Points[m_Polygon[i]], prev, cur, next))
-						{
+						if (IntersectionUtils::IsPointInTriangle(p->vertex, a->vertex, b->vertex, c->vertex) &&
+							GreaterEqual(OrientationUtils::TriangleArea(p->prev->vertex, p->vertex, p->next->vertex), 0))
 							return false;
-						}
+						p = p->next;
 					}
+
 					return true;
+				}
+
+				Node *_InsertNode(IntType index, const HVector2 &v, Node *last)
+				{
+					Node *p = m_NodesPool.construct(index, v);
+					if (last == nullptr)
+					{
+						p->prev = p;
+						p->next = p;
+					}
+					else
+					{
+						p->next = last->next;
+						p->prev = last;
+						last->next->prev = p;
+						last->next = p;
+					}
+					return p;
+				}
+
+				void _RemoveNode(Node *p)
+				{
+					if (p == nullptr)
+						return;
+					p->next->prev = p->prev;
+					p->prev->next = p->next;
+					if (p->prevZ != nullptr)
+						p->prevZ->nextZ = p->nextZ;
+					if (p->nextZ != nullptr)
+						p->nextZ->prevZ = p->prevZ;
+				}
+
+				Node *_LinkedList(const bool clockwise)
+				{
+					HReal sum = 0;
+					const size_t len = m_Polygon.vertices.size();
+					size_t i, j;
+					Node *list = nullptr;
+
+					for (i = 0, j = len > 0 ? len - 1 : 0; i < len; j = i++)
+					{
+						const HVector2 &p0 = m_Points[m_Polygon[i]];
+						const HVector2 &p1 = m_Points[m_Polygon[j]];
+						sum += (p1[0] - p0[0]) * (p1[1] + p0[1]);
+					}
+
+					if (clockwise == (sum > 0))
+					{
+						for (i = 0; i < len; i++)
+							list = _InsertNode(m_Polygon[m_Vertices + i], m_Points[m_Polygon[i]], list);
+					}
+					else
+					{
+						for (i = len; i > 0; i--)
+							list = _InsertNode(m_Polygon[m_Vertices + i], m_Points[m_Polygon[i]], list);
+					}
+
+					if (list && list->next && (*list == *(list->next)))
+					{
+						_RemoveNode(list);
+						list = nullptr;
+					}
+
+					m_Vertices += len;
+					return list;
+				}
+
+				Node *_FilterPoints(Node *start, Node *end)
+				{
+					if (end == nullptr)
+						end = start;
+					bool again = false;
+					Node *p = start;
+					do
+					{
+						again = false;
+						if (!p->steiner && (*p == *(p->next) ||
+							IsZero(OrientationUtils::TriangleArea(p->prev->vertex, p->vertex, p->next->vertex))))
+						{
+							_RemoveNode(p);
+							p = end = p->next;
+							if (p == p->next)
+								break;
+							again = true;
+						}
+						else
+						{
+							p = p->next;
+						}
+					} while (again || p != end);
+					return end;
 				}
 
 			private:
 				HAABBox2D m_BoundingBox;
+				IntType m_Vertices = 0;
 				std::vector<HVector2> m_Points;
 				PolygonIndex<IntType> m_Polygon;
 				std::vector<uint32_t> m_Triangles;
+				ObjectPool<Node> m_NodesPool;
 			};
 
 			typedef EarClip2D<uint8_t> EarClip2DUI8;
