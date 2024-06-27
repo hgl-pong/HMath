@@ -19,7 +19,7 @@ namespace MathLib
 
 		inline HReal TriangleArea(const HVector2 &v0, const HVector2 &v1, const HVector2 &v2)
 		{
-			return std::abs(Orientation2D(v0, v1, v2)) * HReal(0.5);
+			return Orientation2D(v0, v1, v2) * HReal(0.5);
 		}
 
 		inline HReal Orientation3D(const HVector3 &v0, const HVector3 &v1, const HVector3 &v2)

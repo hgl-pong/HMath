@@ -65,19 +65,6 @@ namespace MathLib
 				}
 
 			private:
-				bool _IsClockwise() const
-				{
-					float sum = 0.0f;
-					size_t n = m_Polygon.vertices.size();
-					for (size_t i = 0; i < n; i++)
-					{
-						const HVector2 &cur = m_Points[m_Polygon[i]];
-						const HVector2 &next = m_Points[m_Polygon[(i + 1) % n]];
-						sum += (next[0] - cur[0]) * (next[1] + cur[1]);
-					}
-					return sum > 0.0f;
-				}
-
 				bool _IsConvex(const HVector2 &prev, const HVector2 &cur, const HVector2 &next) const
 				{
 					HVector2 preEdge = prev - cur;
@@ -182,7 +169,7 @@ namespace MathLib
 					{
 						again = false;
 						if (!p->steiner && (*p == *(p->next) ||
-							IsZero(OrientationUtils::TriangleArea(p->prev->vertex, p->vertex, p->next->vertex))))
+											IsZero(OrientationUtils::TriangleArea(p->prev->vertex, p->vertex, p->next->vertex))))
 						{
 							_RemoveNode(p);
 							p = end = p->next;
@@ -196,6 +183,130 @@ namespace MathLib
 						}
 					} while (again || p != end);
 					return end;
+				}
+
+				bool _LocallyInside(Node *a, Node *b)
+				{
+					return OrientationUtils::TriangleArea(a->prev->vertex, a->vertex, a->next->vertex) < 0
+							   ? GreaterEqual(OrientationUtils::TriangleArea(a->vertex, b->vertex, a->next->vertex), 0) &&
+									 GreaterEqual(OrientationUtils::TriangleArea(a->vertex, a->prev->vertex, b->vertex), 0)
+							   : (OrientationUtils::TriangleArea(a->vertex, b->vertex, a->prev->vertex) < 0 ||
+								  GreaterEqual(OrientationUtils::TriangleArea(a->vertex, a->next->vertex, b->vertex), 0)) &&
+				}
+
+				bool _MiddleInside(Node *a, Node *b)
+				{
+					const Node *p = a;
+					bool inside = false;
+					HVector2 c = (a->vertex + b->vertex) / 2;
+					do
+					{
+						if (((p->vertex[1] > c[1]) != (p->next->vertex[1] > c[1])) && p->next->vertex[1] != p->vertex[1] &&
+							(c[0] < (p->next->vertex[0] - p->vertex[0]) * (c[1] - p->vertex[1]) / (p->next->vertex[1] - p->vertex[1]) + p->vertex[0]))
+							inside = !inside;
+						p = p->next;
+					} while (p != a);
+
+					return inside;
+				}
+
+				Node *_SplitPolygon(Node *a, Node *b)
+				{
+					Node *a2 = m_NodesPool.construct(a->vertexIndex, a->vertex);
+					Node *b2 = m_NodesPool.construct(b->vertexIndex, b->vertex);
+					Node *an = a->next;
+					Node *bp = b->prev;
+
+					a->next = b;
+					b->prev = a;
+
+					a2->next = an;
+					an->prev = a2;
+
+					b2->next = a2;
+					a2->prev = b2;
+
+					bp->next = b2;
+					b2->prev = bp;
+
+					return b2;
+				}
+
+				Node *_FindHoleBridge(Node *hole, Node *outerNode)
+				{
+					Node *p = outerNode;
+					const HVector2 &h = hole->vertex;
+					HReal qx = H_REAL_MIN;
+					Node *m = nullptr;
+
+					// find a segment intersected by a ray from the hole's leftmost Vertex to the left;
+					// segment's endpoint with lesser x will be potential connection Vertex
+					do
+					{
+						if (h[1] <= p->vertex[1] && h[1] >= p->next->vertex[1] && p->next->vertex[1] != p->vertex[1])
+						{
+							HReal x = p->vertex[0] + (h[1] - p->vertex[1]) * (p->next->vertex[0] - p->vertex[0]) / (p->next->vertex[1] - p->vertex[1]);
+							if (x <= h[0] && x > qx)
+							{
+								qx = x;
+								if (x == h[0])
+								{
+									if (h[1] == p->vertex[1])
+										return p;
+									if (h[1] == p->next->vertex[1])
+										return p->next;
+								}
+								m = p->vertex[0] < p->next->vertex[0] ? p : p->next;
+							}
+						}
+						p = p->next;
+					} while (p != outerNode);
+
+					if (!m)
+						return 0;
+
+					if (h[0] == qx)
+						return m; // hole touches outer segment; pick leftmost endpoint
+
+					// look for points inside the triangle of hole Vertex, segment intersection and endpoint;
+					// if there are no points found, we have a valid connection;
+					// otherwise choose the Vertex of the minimum angle with the ray as connection Vertex
+
+					const Node *stop = m;
+					HReal tanMin = H_REAL_MIN;
+					HReal tanCur = 0;
+
+					p = m;
+					const HVector2 &mp = m->vertex;
+
+					do
+					{
+						if (h[0] >= p->vertex[0] && p->vertex[0] >= m[0] && h[0] != p->vertex[0] &&
+							IntersectionUtils::IsPointInTriangle(p->vertex,
+																 HVector2([1] < m[1] ? h[0] : qx, h[1]),
+																 m,
+																 HVector2(h[1] < m[1] ? qx : h[0], h[1])))
+						{
+							tanCur = std::abs(h[1] - p->vertex[1]) / (h[0] - p->[0]); // tangential
+
+							if (_LocallyInside(p, hole) &&
+								(tanCur < tanMin || (tanCur == tanMin && (p->vertex[0] > m->vertex[0] || _SectorContainsSector(m, p)))))
+							{
+								m = p;
+								tanMin = tanCur;
+							}
+						}
+
+						p = p->next;
+					} while (p != stop);
+
+					return m;
+				}
+
+				bool _SectorContainsSector(const Node *m, const Node *p)
+				{
+					return Less(OrientationUtils::TriangleArea(m->prev->vertex, m->vertex, p->prev->vertex), 0) &&
+						   Less(OrientationUtils::TriangleArea(p->next->vertex, m->vertex, m->next->vertex), 0);
 				}
 
 			private:

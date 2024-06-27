@@ -103,7 +103,7 @@ namespace MathLib
 			if (!IsZero(a))
 				return false;
 			HReal b = (p - v0).dot(p - v1);
-			return b <= 0;
+			return LessEqual(b, 0);
 		}
 
 		inline bool IsOnLine(const HVector3 &p, const HVector3 &v0, const HVector3 &v1)
@@ -118,7 +118,7 @@ namespace MathLib
 			if (!IsZero(a))
 				return false;
 			HReal b = (p - v0).dot(p - v1);
-			return b <= 0;
+			return LessEqual(b, 0);
 		}
 
 		inline bool EdgeIntersectEdge2D(const HVector2 &v0, const HVector2 &v1, const HVector2 &u0, const HVector2 &u1)
