@@ -121,7 +121,7 @@ namespace MathLib
 			return LessEqual(b, 0);
 		}
 
-		inline bool EdgeIntersectEdge2D(const HVector2 &v0, const HVector2 &v1, const HVector2 &u0, const HVector2 &u1)
+		inline bool EdgeIntersectEdge(const HVector2 &v0, const HVector2 &v1, const HVector2 &u0, const HVector2 &u1)
 		{
 			HReal d1 = OrientationUtils::Orientation2D(v0, v1, u0);
 			HReal d2 = OrientationUtils::Orientation2D(v0, v1, u1);
@@ -149,11 +149,11 @@ namespace MathLib
 				return true;
 			if (IsPointInTriangle(v1, u0, u1, u2))
 				return true;
-			if (EdgeIntersectEdge2D(v0, v1, u0, u1))
+			if (EdgeIntersectEdge(v0, v1, u0, u1))
 				return true;
-			if (EdgeIntersectEdge2D(v0, v1, u1, u2))
+			if (EdgeIntersectEdge(v0, v1, u1, u2))
 				return true;
-			if (EdgeIntersectEdge2D(v0, v1, u2, u0))
+			if (EdgeIntersectEdge(v0, v1, u2, u0))
 				return true;
 			return false;
 		}

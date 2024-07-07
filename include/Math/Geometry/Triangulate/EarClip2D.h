@@ -55,6 +55,11 @@ namespace MathLib
 					return IntersectionUtils::IsOnSegment(p->vertex, a->vertex, b->vertex);
 				}
 
+				bool _IsEdgeEdgeIntersect(const Node *p1, const Node *q1, const Node *p2, const Node *q2) const
+				{
+					return IntersectionUtils::EdgeIntersectEdge(p1->vertex, q1->vertex, p2->vertex, q2->vertex);
+				}
+
 			public:
 				EarClip2D() {}
 				~EarClip2D() {}
@@ -77,6 +82,50 @@ namespace MathLib
 
 				void Triangulate()
 				{
+					indices.clear();
+					m_Vertices = 0;
+
+					if (m_Points.empty())
+						return;
+
+					HReal x;
+					HReal y;
+					int threshold = 80;
+					std::size_t len = 0;
+
+					for (size_t i = 0; threshold >= 0 && i < points.size(); i++)
+					{
+						threshold -= static_cast<int>(m_Points[i].size());
+						len += m_Points[i].size();
+					}
+
+					// estimate size of nodes and indices
+					nodes.reset(len * 3 / 2);
+					indices.reserve(len + m_Points[0].size());
+
+					Node *outerNode = _LinkedList(m_Points[0], true);
+					if (!outerNode || outerNode->prev == outerNode->next)
+						return;
+
+					if (m_Points.size() > 1)
+						outerNode = _EliminateHoles(m_Points, outerNode);
+
+					// if the shape is not too simple, we'll use z-order curve hash later; calculate polygon bbox
+					m_bIsHashing = threshold < 0;
+					if (m_bIsHashing)
+					{
+						Node *p = outerNode->next;
+						m_BoundingBox.extend(outerNode->vertex);
+						do
+						{
+							m_BoundingBox.extend(p->vertex);
+							p = p->next;
+						} while (p != outerNode);
+					}
+
+					_EarcutLinked(outerNode);
+
+					nodes.clear();
 				}
 
 				const std::vector<uint32_t> &GetTriangles() const
@@ -85,13 +134,6 @@ namespace MathLib
 				}
 
 			private:
-				bool _IsConvex(const HVector2 &prev, const HVector2 &cur, const HVector2 &next) const
-				{
-					HVector2 preEdge = prev - cur;
-					HVector2 nextEdge = next - cur;
-					return preEdge[0] * nextEdge[1] - preEdge[1] * nextEdge[0] >= 0.0f;
-				}
-
 				bool _IsEar(Node *ear) const
 				{
 					const Node *a = ear->prev;
@@ -415,6 +457,8 @@ namespace MathLib
 					const HVector2 &min = m_BoundingBox.min();
 					const Hvector2 &sizes = m_BoundingBox.sizes();
 					const HReal inv_size = 1.0f / std::max(sizes[0], sizes[1]);
+					if (std::isnan(inv_size) || std::isinf(inv_size))
+						inv_size = 0.0f;
 					uint32_t x = static_cast<uint32_t>(32767.0 * (p[0] - min[0]) * inv_size);
 					uint32_t y = static_cast<uint32_t>(32767.0 * (p[1] - min[1]) * inv_size);
 
@@ -474,7 +518,172 @@ namespace MathLib
 					return true;
 				}
 
+				Node *_CureLocalIntersections(Node *start)
+				{
+					Node *p = start;
+					do
+					{
+						Node *a = p->prev;
+						Node *b = p->next->next;
+
+						// a self-intersection where edge (v[i-1],v[i]) intersects (v[i+1],v[i+2])
+						if (!(*a == *b) && _IsEdgeEdgeIntersect(a, p, p->next, b) && _LocallyInside(a, b) && _LocallyInside(b, a))
+						{
+							indices.emplace_back(a->i);
+							indices.emplace_back(p->i);
+							indices.emplace_back(b->i);
+
+							// remove two nodes involved
+							_RemoveNode(p);
+							_RemoveNode(p->next);
+
+							p = start = b;
+						}
+						p = p->next;
+					} while (p != start);
+
+					return _FilterPoints(p);
+				}
+
+				void _IndexCurve(Node *start)
+				{
+					assert(start);
+					Node *p = start;
+
+					do
+					{
+						p->z = p->z ? p->z : _ZOrder(p->x, p->y);
+						p->prevZ = p->prev;
+						p->nextZ = p->next;
+						p = p->next;
+					} while (p != start);
+
+					p->prevZ->nextZ = nullptr;
+					p->prevZ = nullptr;
+
+					_SortLinked(p);
+				}
+
+				void _EarcutLinked(Node *ear, int pass)
+				{
+					if (!ear)
+						return;
+
+					// interlink polygon nodes in z-order
+					if (!pass && m_bIsHashing)
+						_IndexCurve(ear);
+
+					Node *stop = ear;
+					Node *prev;
+					Node *next;
+
+					int iterations = 0;
+
+					// iterate through ears, slicing them one by one
+					while (ear->prev != ear->next)
+					{
+						iterations++;
+						prev = ear->prev;
+						next = ear->next;
+
+						if (m_bIsHashing ? _IsEarHashed(ear) : _IsEar(ear))
+						{
+							// cut off the triangle
+							indices.emplace_back(prev->i);
+							indices.emplace_back(ear->i);
+							indices.emplace_back(next->i);
+
+							removeNode(ear);
+
+							// skipping the next vertice leads to less sliver triangles
+							ear = next->next;
+							stop = next->next;
+
+							continue;
+						}
+
+						ear = next;
+
+						// if we looped through the whole remaining polygon and can't find any more ears
+						if (ear == stop)
+						{
+							// try filtering points and slicing again
+							if (!pass)
+								_EarcutLinked(_FilterPoints(ear), 1);
+
+							// if this didn't work, try curing all small self-intersections locally
+							else if (pass == 1)
+							{
+								ear = _CureLocalIntersections(_FilterPoints(ear));
+								_EarcutLinked(ear, 2);
+
+								// as a last resort, try splitting the remaining polygon into two
+							}
+							else if (pass == 2)
+								_SplitEarcut(ear);
+
+							break;
+						}
+					}
+				}
+
+				Node *_EliminateHoles(const Polygon &points, Node *outerNode)
+				{
+					const size_t len = points.size();
+
+					std::vector<Node *> queue;
+					for (size_t i = 1; i < len; i++)
+					{
+						Node *list = _LinkedList(points[i], false);
+						if (list)
+						{
+							if (list == list->next)
+								list->steiner = true;
+							queue.push_back(_GetLeftmost(list));
+						}
+					}
+					std::sort(queue.begin(), queue.end(), [](const Node *a, const Node *b)
+							  { return a->vertex[0] < b->vertex[0]; });
+
+					// process holes from left to right
+					for (size_t i = 0; i < queue.size(); i++)
+					{
+						_EliminateHole(queue[i], outerNode);
+						outerNode = _FilterPoints(outerNode, outerNode->next);
+					}
+
+					return outerNode;
+				}
+
+				Node *_GetLeftmost(Node *start)
+				{
+					Node *p = start;
+					Node *leftmost = start;
+					do
+					{
+						if (p->x < leftmost->x || (p->x == leftmost->x && p->y < leftmost->y))
+							leftmost = p;
+						p = p->next;
+					} while (p != start);
+
+					return leftmost;
+				}
+
+				void _EliminateHole(Node *hole, Node *outerNode)
+				{
+					outerNode = _FindHoleBridge(hole, outerNode);
+					if (outerNode)
+					{
+						Node *b = _SplitPolygon(outerNode, hole);
+
+						// filter out colinear points around cuts
+						_FilterPoints(outerNode, outerNode->next);
+						_FilterPoints(b, b->next);
+					}
+				}
+
 			private:
+				bool m_bIsHashing = false;
 				HAABBox2D m_BoundingBox;
 				IntType m_Vertices = 0;
 				std::vector<HVector2> m_Points;

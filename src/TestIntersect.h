@@ -350,22 +350,22 @@ TEST(IntersectionUtilsTest, EdgeIntersectEdge2D)
     MathLib::HVector2 u0(0, 1);
     MathLib::HVector2 u1(1, 0);
 
-    EXPECT_TRUE(MathLib::IntersectionUtils::EdgeIntersectEdge2D(v0, v1, u0, u1));
+    EXPECT_TRUE(MathLib::IntersectionUtils::EdgeIntersectEdge(v0, v1, u0, u1));
 
     MathLib::HVector2 u2(2, 2);
-    EXPECT_FALSE(MathLib::IntersectionUtils::EdgeIntersectEdge2D(v0, v1, u0, u2));
+    EXPECT_FALSE(MathLib::IntersectionUtils::EdgeIntersectEdge(v0, v1, u0, u2));
 
     MathLib::HVector2 v2(0, 0);
     MathLib::HVector2 v3(2, 2);
     MathLib::HVector2 u3(1, 1);
     MathLib::HVector2 u4(3, 3);
-    EXPECT_TRUE(MathLib::IntersectionUtils::EdgeIntersectEdge2D(v2, v3, u3, u4));
+    EXPECT_TRUE(MathLib::IntersectionUtils::EdgeIntersectEdge(v2, v3, u3, u4));
 
     MathLib::HVector2 v4(0, 0);
     MathLib::HVector2 v5(1, 1);
     MathLib::HVector2 u5(1, 1);
     MathLib::HVector2 u6(2, 2);
-    EXPECT_TRUE(MathLib::IntersectionUtils::EdgeIntersectEdge2D(v4, v5, u5, u6));
+    EXPECT_TRUE(MathLib::IntersectionUtils::EdgeIntersectEdge(v4, v5, u5, u6));
 }
 
 TEST(IntersectionUtilsTest, EdgeIntersectTriangle2D)
