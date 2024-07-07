@@ -24,6 +24,7 @@ namespace MathLib
 					Node *prevZ = nullptr;
 					Node *nextZ = nullptr;
 					bool steiner = false;
+					Node() = delete;
 					Node(IntType index, const HVector2 &v) : vertexIndex(index), vertex(v) {}
 					Node(const Node &) = delete;
 					Node &operator=(const Node &) = delete;
@@ -33,7 +34,26 @@ namespace MathLib
 					{
 						return vertex == rhs.vertex;
 					}
+					HReal operator[](size_t i) const
+					{
+						return vertex[i];
+					}
 				};
+
+				HReal _Area(const Node *p, const Node *q, const Node *r) const
+				{
+					return OrientationUtils::TriangleArea(p->vertex, q->vertex, r->vertex);
+				}
+
+				bool _IsPointInTriangle(const Node *p, const Node *a, const Node *b, const Node *c) const
+				{
+					return IntersectionUtils::IsPointInTriangle(p->vertex, a->vertex, b->vertex, c->vertex);
+				}
+
+				bool _IsPointOnSegment(const Node *p, const Node *a, const Node *b) const
+				{
+					return IntersectionUtils::IsOnSegment(p->vertex, a->vertex, b->vertex);
+				}
 
 			public:
 				EarClip2D() {}
@@ -78,15 +98,15 @@ namespace MathLib
 					const Node *b = ear;
 					const Node *c = ear->next;
 
-					if (GreaterEqual(OrientationUtils::TriangleArea(a->vertex, b->vertex, c->vertex), 0))
+					if (GreaterEqual(_Area(a, b, c), 0))
 						return false; // reflex, can't be an ear
 
 					Node *p = ear->next->next;
 
 					while (p != ear->prev)
 					{
-						if (IntersectionUtils::IsPointInTriangle(p->vertex, a->vertex, b->vertex, c->vertex) &&
-							GreaterEqual(OrientationUtils::TriangleArea(p->prev->vertex, p->vertex, p->next->vertex), 0))
+						if (_IsPointInTriangle(p, a, b, c) &&
+							GreaterEqual(_Area(p->prev, p, p->next), 0))
 							return false;
 						p = p->next;
 					}
@@ -169,7 +189,7 @@ namespace MathLib
 					{
 						again = false;
 						if (!p->steiner && (*p == *(p->next) ||
-											IsZero(OrientationUtils::TriangleArea(p->prev->vertex, p->vertex, p->next->vertex))))
+											IsZero(_Area(p->prev, p, p->next))))
 						{
 							_RemoveNode(p);
 							p = end = p->next;
@@ -187,11 +207,11 @@ namespace MathLib
 
 				bool _LocallyInside(Node *a, Node *b)
 				{
-					return OrientationUtils::TriangleArea(a->prev->vertex, a->vertex, a->next->vertex) < 0
-							   ? GreaterEqual(OrientationUtils::TriangleArea(a->vertex, b->vertex, a->next->vertex), 0) &&
-									 GreaterEqual(OrientationUtils::TriangleArea(a->vertex, a->prev->vertex, b->vertex), 0)
-							   : (OrientationUtils::TriangleArea(a->vertex, b->vertex, a->prev->vertex) < 0 ||
-								  GreaterEqual(OrientationUtils::TriangleArea(a->vertex, a->next->vertex, b->vertex), 0)) &&
+					return _Area(a->prev, a, a->next) < 0
+							   ? GreaterEqual(_Area(a, b a->next), 0) &&
+									 GreaterEqual(_Area(a, a->prev, b), 0)
+							   : (_Area(a, b, a->prev) < 0 ||
+								  GreaterEqual(_Area(a, a->next, b), 0));
 				}
 
 				bool _MiddleInside(Node *a, Node *b)
@@ -305,8 +325,153 @@ namespace MathLib
 
 				bool _SectorContainsSector(const Node *m, const Node *p)
 				{
-					return Less(OrientationUtils::TriangleArea(m->prev->vertex, m->vertex, p->prev->vertex), 0) &&
-						   Less(OrientationUtils::TriangleArea(p->next->vertex, m->vertex, m->next->vertex), 0);
+					return Less(_Area(m->prev, m, p->prev), 0) &&
+						   Less(_Area(p->next, m, m->next), 0);
+				}
+
+				Node *_SortLinked(Node *list)
+				{
+					assert(list);
+					Node *p;
+					Node *q;
+					Node *e;
+					Node *tail;
+					int i, numMerges, pSize, qSize;
+					int inSize = 1;
+
+					for (;;)
+					{
+						p = list;
+						list = nullptr;
+						tail = nullptr;
+						numMerges = 0;
+
+						while (p)
+						{
+							numMerges++;
+							q = p;
+							pSize = 0;
+							for (i = 0; i < inSize; i++)
+							{
+								pSize++;
+								q = q->nextZ;
+								if (!q)
+									break;
+							}
+
+							qSize = inSize;
+
+							while (pSize > 0 || (qSize > 0 && q))
+							{
+
+								if (pSize == 0)
+								{
+									e = q;
+									q = q->nextZ;
+									qSize--;
+								}
+								else if (qSize == 0 || !q)
+								{
+									e = p;
+									p = p->nextZ;
+									pSize--;
+								}
+								else if (p->z <= q->z)
+								{
+									e = p;
+									p = p->nextZ;
+									pSize--;
+								}
+								else
+								{
+									e = q;
+									q = q->nextZ;
+									qSize--;
+								}
+
+								if (tail)
+									tail->nextZ = e;
+								else
+									list = e;
+
+								e->prevZ = tail;
+								tail = e;
+							}
+
+							p = q;
+						}
+
+						tail->nextZ = nullptr;
+
+						if (numMerges <= 1)
+							return list;
+
+						inSize *= 2;
+					}
+				}
+
+				uint32_t _ZOrder(const HVector2 &p)
+				{
+					const HVector2 &min = m_BoundingBox.min();
+					const Hvector2 &sizes = m_BoundingBox.sizes();
+					const HReal inv_size = 1.0f / std::max(sizes[0], sizes[1]);
+					uint32_t x = static_cast<uint32_t>(32767.0 * (p[0] - min[0]) * inv_size);
+					uint32_t y = static_cast<uint32_t>(32767.0 * (p[1] - min[1]) * inv_size);
+
+					x = (x | (x << 8)) & 0x00FF00FF;
+					x = (x | (x << 4)) & 0x0F0F0F0F;
+					x = (x | (x << 2)) & 0x33333333;
+					x = (x | (x << 1)) & 0x55555555;
+
+					y = (y | (y << 8)) & 0x00FF00FF;
+					y = (y | (y << 4)) & 0x0F0F0F0F;
+					y = (y | (y << 2)) & 0x33333333;
+					y = (y | (y << 1)) & 0x55555555;
+
+					return x | (y << 1);
+				}
+
+				bool _IsEarHashed(Node *ear)
+				{
+					const Node *a = ear->prev;
+					const Node *b = ear;
+					const Node *c = ear->next;
+
+					if (_Area(a, b, c) >= 0)
+						return false; // reflex, can't be an ear
+
+					const HReal minTX = (std::min)(*a[0], (std::min)(*b[0], *c[0]));
+					const HReal minTY = (std::min)(*a[1], (std::min)(*b[1], *c[1]));
+					const HReal maxTX = (std::max)(*a[0], (std::max)(*b[0], *c[0]));
+					const HReal maxTY = (std::max)(*a[1], (std::max)(*b[1], *c[1]));
+
+					const uint32_t minZ = _ZOrder(minTX, minTY);
+					const uint32_t maxZ = _ZOrder(maxTX, maxTY);
+
+					Node *p = ear->nextZ;
+
+					while (p && p->z <= maxZ)
+					{
+						if (p != ear->prev && p != ear->next &&
+							_IsPointInTriangle(p, a, b, c) &&
+							_Area(p->prev, p, p->next) >= 0)
+							return false;
+						p = p->nextZ;
+					}
+
+					// then look for points in decreasing z-order
+					p = ear->prevZ;
+
+					while (p && p->z >= minZ)
+					{
+						if (p != ear->prev && p != ear->next &&
+							_IsPointInTriangle(p, a, b, c) &&
+							_Area(p->prev, p, p->next) >= 0)
+							return false;
+						p = p->prevZ;
+					}
+
+					return true;
 				}
 
 			private:
