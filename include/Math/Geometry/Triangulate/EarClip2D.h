@@ -13,6 +13,8 @@ namespace MathLib
 			template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
 			class EarClip2D
 			{
+			public:
+				typedef std::vector<PolygonIndex<IntType>> Polygon;
 			private:
 				struct Node
 				{
@@ -64,7 +66,7 @@ namespace MathLib
 				EarClip2D() {}
 				~EarClip2D() {}
 
-				void SetPolygon(const std::vector<HVector2> &points, const PolygonIndex<IntType> &polygon)
+				void SetPolygon(const std::vector<HVector2> &points, const Polygon &polygon)
 				{
 					m_Points = points;
 					m_Polygon = polygon;
@@ -73,19 +75,21 @@ namespace MathLib
 				void SetPolygon(const std::vector<HVector2> &points)
 				{
 					m_Points = points;
-					m_Polygon.vertices.resize(points.size());
+					m_Polygon.resize(1);
+					PolygonIndex<IntType> &polygon = m_Polygon[0];
+					polygon.vertices.resize(points.size());
 					for (size_t i = 0; i < points.size(); i++)
 					{
-						m_Polygon[i] = i;
+						polygon[i] = i;
 					}
 				}
 
 				void Triangulate()
 				{
-					indices.clear();
+					m_Triangles.clear();
 					m_Vertices = 0;
 
-					if (m_Points.empty())
+					if (m_Polygon.empty())
 						return;
 
 					HReal x;
@@ -93,22 +97,21 @@ namespace MathLib
 					int threshold = 80;
 					std::size_t len = 0;
 
-					for (size_t i = 0; threshold >= 0 && i < points.size(); i++)
-					{
-						threshold -= static_cast<int>(m_Points[i].size());
-						len += m_Points[i].size();
-					}
+                for (size_t i = 0; threshold >= 0 && i < m_Polygon.size(); i++) {
+                    threshold -= static_cast<int>(m_Polygon[i].size());
+                    len += m_Polygon[i].size();
+                }
 
 					// estimate size of nodes and indices
-					nodes.reset(len * 3 / 2);
-					indices.reserve(len + m_Points[0].size());
+					m_NodesPool.reset(len * 3 / 2);
+					m_Triangles.reserve((len + m_Polygon[0].size())/3);
 
-					Node *outerNode = _LinkedList(m_Points[0], true);
+					Node *outerNode = _LinkedList(m_Polygon[0], true);
 					if (!outerNode || outerNode->prev == outerNode->next)
 						return;
 
-					if (m_Points.size() > 1)
-						outerNode = _EliminateHoles(m_Points, outerNode);
+					if (m_Polygon.size() > 1)
+						outerNode = _EliminateHoles(outerNode);
 
 					// if the shape is not too simple, we'll use z-order curve hash later; calculate polygon bbox
 					m_bIsHashing = threshold < 0;
@@ -125,7 +128,7 @@ namespace MathLib
 
 					_EarcutLinked(outerNode);
 
-					nodes.clear();
+					m_NodesPool.clear();
 				}
 
 				const std::vector<uint32_t> &GetTriangles() const
@@ -186,29 +189,29 @@ namespace MathLib
 						p->nextZ->prevZ = p->prevZ;
 				}
 
-				Node *_LinkedList(const bool clockwise)
+				Node *_LinkedList(const PolygonIndex<IntType>& ring, const bool clockwise)
 				{
 					HReal sum = 0;
-					const size_t len = m_Polygon.vertices.size();
+					const size_t len = ring.vertices.size();
 					size_t i, j;
 					Node *list = nullptr;
 
 					for (i = 0, j = len > 0 ? len - 1 : 0; i < len; j = i++)
 					{
-						const HVector2 &p0 = m_Points[m_Polygon[i]];
-						const HVector2 &p1 = m_Points[m_Polygon[j]];
+						const HVector2 &p0 = m_Points[ring[i]];
+						const HVector2 &p1 = m_Points[ring[j]];
 						sum += (p1[0] - p0[0]) * (p1[1] + p0[1]);
 					}
 
 					if (clockwise == (sum > 0))
 					{
 						for (i = 0; i < len; i++)
-							list = _InsertNode(m_Polygon[m_Vertices + i], m_Points[m_Polygon[i]], list);
+							list = _InsertNode(m_Vertices + i, m_Points[ring[i]], list);
 					}
 					else
 					{
 						for (i = len; i > 0; i--)
-							list = _InsertNode(m_Polygon[m_Vertices + i], m_Points[m_Polygon[i]], list);
+							list = _InsertNode(m_Vertices + i, m_Points[ring[i]], list);
 					}
 
 					if (list && list->next && (*list == *(list->next)))
@@ -455,7 +458,7 @@ namespace MathLib
 				uint32_t _ZOrder(const HVector2 &p)
 				{
 					const HVector2 &min = m_BoundingBox.min();
-					const Hvector2 &sizes = m_BoundingBox.sizes();
+					const HVector2 &sizes = m_BoundingBox.sizes();
 					const HReal inv_size = 1.0f / std::max(sizes[0], sizes[1]);
 					if (std::isnan(inv_size) || std::isinf(inv_size))
 						inv_size = 0.0f;
@@ -595,7 +598,7 @@ namespace MathLib
 
 							removeNode(ear);
 
-							// skipping the next vertice leads to less sliver triangles
+							// skipping the next vertices leads to less sliver triangles
 							ear = next->next;
 							stop = next->next;
 
@@ -627,14 +630,14 @@ namespace MathLib
 					}
 				}
 
-				Node *_EliminateHoles(const Polygon &points, Node *outerNode)
+				Node *_EliminateHoles(Node *outerNode)
 				{
-					const size_t len = points.size();
+					const size_t len = m_Polygon.size();
 
 					std::vector<Node *> queue;
 					for (size_t i = 1; i < len; i++)
 					{
-						Node *list = _LinkedList(points[i], false);
+						Node *list = _LinkedList(m_Polygon[i], false);
 						if (list)
 						{
 							if (list == list->next)
@@ -661,7 +664,9 @@ namespace MathLib
 					Node *leftmost = start;
 					do
 					{
-						if (p->x < leftmost->x || (p->x == leftmost->x && p->y < leftmost->y))
+						const HVector2 &v = p->vertex;
+						const HVector2 &lv = leftmost->vertex;
+						if (v[0] < lv[0] || (v[0]==lv[0] && v[1] < lv[1]))
 							leftmost = p;
 						p = p->next;
 					} while (p != start);
@@ -687,7 +692,7 @@ namespace MathLib
 				HAABBox2D m_BoundingBox;
 				IntType m_Vertices = 0;
 				std::vector<HVector2> m_Points;
-				PolygonIndex<IntType> m_Polygon;
+				Polygon m_Polygon;
 				std::vector<uint32_t> m_Triangles;
 				ObjectPool<Node> m_NodesPool;
 			};
