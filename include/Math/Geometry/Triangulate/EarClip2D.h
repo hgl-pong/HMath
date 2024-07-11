@@ -98,13 +98,13 @@ namespace MathLib
 					std::size_t len = 0;
 
                 for (size_t i = 0; threshold >= 0 && i < m_Polygon.size(); i++) {
-                    threshold -= static_cast<int>(m_Polygon[i].size());
-                    len += m_Polygon[i].size();
+                    threshold -= static_cast<int>(m_Polygon[i].vertices.size());
+                    len += m_Polygon[i].vertices.size();
                 }
 
 					// estimate size of nodes and indices
 					m_NodesPool.reset(len * 3 / 2);
-					m_Triangles.reserve((len + m_Polygon[0].size())/3);
+					m_Triangles.reserve((len + m_Polygon[0].vertices.size())/3);
 
 					Node *outerNode = _LinkedList(m_Polygon[0], true);
 					if (!outerNode || outerNode->prev == outerNode->next)
@@ -224,7 +224,7 @@ namespace MathLib
 					return list;
 				}
 
-				Node *_FilterPoints(Node *start, Node *end)
+				Node *_FilterPoints(Node *start, Node *end = nullptr)
 				{
 					if (end == nullptr)
 						end = start;
@@ -252,11 +252,11 @@ namespace MathLib
 
 				bool _LocallyInside(Node *a, Node *b)
 				{
-					return _Area(a->prev, a, a->next) < 0
-							   ? GreaterEqual(_Area(a, b a->next), 0) &&
-									 GreaterEqual(_Area(a, a->prev, b), 0)
-							   : (_Area(a, b, a->prev) < 0 ||
-								  GreaterEqual(_Area(a, a->next, b), 0));
+					return Less(_Area(a->prev, a, a->next) ,0)
+							   ? (GreaterEqual(_Area(a, b, a->next), 0) &&
+									 GreaterEqual(_Area(a, a->prev, b), 0))
+							   : (Less(_Area(a, b, a->prev) , 0) ||
+								  Less(_Area(a, a->next, b), 0));
 				}
 
 				bool _MiddleInside(Node *a, Node *b)
@@ -346,13 +346,15 @@ namespace MathLib
 
 					do
 					{
-						if (h[0] >= p->vertex[0] && p->vertex[0] >= m[0] && h[0] != p->vertex[0] &&
-							IntersectionUtils::IsPointInTriangle(p->vertex,
-																 HVector2([1] < m[1] ? h[0] : qx, h[1]),
-																 m,
-																 HVector2(h[1] < m[1] ? qx : h[0], h[1])))
+						if (h[0] >= p->vertex[0] 
+							&& p->vertex[0] >= m->vertex[0]
+							&& h[0] != p->vertex[0] 
+							&& IntersectionUtils::IsPointInTriangle(p->vertex,
+																 HVector2(h[1] < m->vertex[1] ? h[0] : qx, h[1]),
+																 m->vertex,
+																 HVector2(h[1] < m->vertex[1] ? qx : h[0], h[1])))
 						{
-							tanCur = std::abs(h[1] - p->vertex[1]) / (h[0] - p->[0]); // tangential
+							tanCur = std::abs(h[1] - p->vertex[1]) / (h[0] - p->vertex[0]); // tangential
 
 							if (_LocallyInside(p, hole) &&
 								(tanCur < tanMin || (tanCur == tanMin && (p->vertex[0] > m->vertex[0] || _SectorContainsSector(m, p)))))
@@ -459,7 +461,7 @@ namespace MathLib
 				{
 					const HVector2 &min = m_BoundingBox.min();
 					const HVector2 &sizes = m_BoundingBox.sizes();
-					const HReal inv_size = 1.0f / std::max(sizes[0], sizes[1]);
+					HReal inv_size = 1.0f / std::max(sizes[0], sizes[1]);
 					if (std::isnan(inv_size) || std::isinf(inv_size))
 						inv_size = 0.0f;
 					uint32_t x = static_cast<uint32_t>(32767.0 * (p[0] - min[0]) * inv_size);
@@ -487,13 +489,13 @@ namespace MathLib
 					if (_Area(a, b, c) >= 0)
 						return false; // reflex, can't be an ear
 
-					const HReal minTX = (std::min)(*a[0], (std::min)(*b[0], *c[0]));
-					const HReal minTY = (std::min)(*a[1], (std::min)(*b[1], *c[1]));
-					const HReal maxTX = (std::max)(*a[0], (std::max)(*b[0], *c[0]));
-					const HReal maxTY = (std::max)(*a[1], (std::max)(*b[1], *c[1]));
+					const HReal minTX = (std::min)((*a)[0], (std::min)((*b)[0], (*c)[0]));
+					const HReal minTY = (std::min)((*a)[1], (std::min)((*b)[1], (*c)[1]));
+					const HReal maxTX = (std::max)((*a)[0], (std::max)((*b)[0], (*c)[0]));
+					const HReal maxTY = (std::max)((*a)[1], (std::max)((*b)[1], (*c)[1]));
 
-					const uint32_t minZ = _ZOrder(minTX, minTY);
-					const uint32_t maxZ = _ZOrder(maxTX, maxTY);
+					const uint32_t minZ = _ZOrder(HVector2(minTX, minTY));
+					const uint32_t maxZ = _ZOrder(HVector2(maxTX, maxTY));
 
 					Node *p = ear->nextZ;
 
@@ -532,9 +534,9 @@ namespace MathLib
 						// a self-intersection where edge (v[i-1],v[i]) intersects (v[i+1],v[i+2])
 						if (!(*a == *b) && _IsEdgeEdgeIntersect(a, p, p->next, b) && _LocallyInside(a, b) && _LocallyInside(b, a))
 						{
-							indices.emplace_back(a->i);
-							indices.emplace_back(p->i);
-							indices.emplace_back(b->i);
+							m_Triangles.emplace_back(a->vertexIndex);
+							m_Triangles.emplace_back(p->vertexIndex);
+							m_Triangles.emplace_back(b->vertexIndex);
 
 							// remove two nodes involved
 							_RemoveNode(p);
@@ -555,7 +557,7 @@ namespace MathLib
 
 					do
 					{
-						p->z = p->z ? p->z : _ZOrder(p->x, p->y);
+						p->z = p->z ? p->z : _ZOrder(p->vertex);
 						p->prevZ = p->prev;
 						p->nextZ = p->next;
 						p = p->next;
@@ -567,7 +569,7 @@ namespace MathLib
 					_SortLinked(p);
 				}
 
-				void _EarcutLinked(Node *ear, int pass)
+				void _EarcutLinked(Node *ear, int pass = 0 )
 				{
 					if (!ear)
 						return;
@@ -592,11 +594,11 @@ namespace MathLib
 						if (m_bIsHashing ? _IsEarHashed(ear) : _IsEar(ear))
 						{
 							// cut off the triangle
-							indices.emplace_back(prev->i);
-							indices.emplace_back(ear->i);
-							indices.emplace_back(next->i);
+							m_Triangles.emplace_back(prev->vertexIndex);
+							m_Triangles.emplace_back(ear->vertexIndex);
+							m_Triangles.emplace_back(next->vertexIndex);
 
-							removeNode(ear);
+							_RemoveNode(ear);
 
 							// skipping the next vertices leads to less sliver triangles
 							ear = next->next;
@@ -687,13 +689,59 @@ namespace MathLib
 					}
 				}
 
+				void _SplitEarcut(Node* start) {
+					// look for a valid diagonal that divides the polygon into two
+					Node* a = start;
+					do {
+						Node* b = a->next->next;
+						while (b != a->prev) {
+							if (a->vertexIndex != b->vertexIndex && _IsValidDiagonal(a, b)) {
+								// split the polygon in two by the diagonal
+								Node* c = _SplitPolygon(a, b);
+
+								// filter colinear points around the cuts
+								a = _FilterPoints(a, a->next);
+								c = _FilterPoints(c, c->next);
+
+								// run earcut on each half
+								_EarcutLinked(a);
+								_EarcutLinked(c);
+								return;
+							}
+							b = b->next;
+						}
+						a = a->next;
+					} while (a != start);
+				}
+
+				bool _IsValidDiagonal(Node* a, Node* b) {
+					return a->next->vertexIndex != b->vertexIndex && a->prev->vertexIndex != b->vertexIndex && !_IntersectsPolygon(a, b) && // dones't intersect other edges
+						((_LocallyInside(a, b) && _LocallyInside(b, a) && _MiddleInside(a, b) && // locally visible
+							(_Area(a->prev, a, b->prev) != 0.0 || _Area(a, b->prev, b) != 0.0)) || // does not create opposite-facing sectors
+							(*a==*b && _Area(a->prev, a, a->next) > 0 && _Area(b->prev, b, b->next) > 0)); // special zero-length case
+				}
+
+				bool _IntersectsPolygon(const Node* a, const Node* b) {
+					const Node* p = a;
+					do {
+						if (p->vertexIndex != a->vertexIndex 
+							&& p->next->vertexIndex != a->vertexIndex
+							&& p->vertexIndex != b->vertexIndex 
+							&& p->next->vertexIndex != b->vertexIndex 
+							&&_IsEdgeEdgeIntersect(p, p->next, a, b)) return true;
+						p = p->next;
+					} while (p != a);
+
+					return false;
+				}
+
 			private:
 				bool m_bIsHashing = false;
 				HAABBox2D m_BoundingBox;
 				IntType m_Vertices = 0;
 				std::vector<HVector2> m_Points;
 				Polygon m_Polygon;
-				std::vector<uint32_t> m_Triangles;
+				std::vector<IntType> m_Triangles;
 				ObjectPool<Node> m_NodesPool;
 			};
 
