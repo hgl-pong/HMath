@@ -11,8 +11,8 @@ TEST(EarClip2DTest, TriangulateConcavePolygon) {
     const std::vector<uint32_t>& triangles = earClip.GetTriangles();
 
     ASSERT_EQ(triangles.size(), 9);
-    // ¼ì²éÈı½ÇĞÎµÄ¶¥µãÊÇ·ñÕıÈ·
-    // ¾ßÌåµÄÈı½Ç»¯½á¹û¿ÉÄÜÓĞ¶àÖÖÕıÈ·µÄĞÎÊ½£¬ÕâÀïÖ»¼ì²éÊıÁ¿
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎµÄ¶ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½È·
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 TEST(EarClip2DTest, TriangulatePolygonWithHole) {
@@ -33,8 +33,8 @@ TEST(EarClip2DTest, TriangulatePolygonWithHole) {
     const std::vector<uint32_t>& triangles = earClip.GetTriangles();
 
     ASSERT_EQ(triangles.size(), 18);
-    // ¼ì²éÈı½ÇĞÎµÄ¶¥µãÊÇ·ñÕıÈ·
-    // ¾ßÌåµÄÈı½Ç»¯½á¹û¿ÉÄÜÓĞ¶àÖÖÕıÈ·µÄĞÎÊ½£¬ÕâÀïÖ»¼ì²éÊıÁ¿
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎµÄ¶ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½È·
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 TEST(EarClip2DTest, TriangulateRandomPolygon) {
@@ -47,6 +47,6 @@ TEST(EarClip2DTest, TriangulateRandomPolygon) {
     const std::vector<uint32_t>& triangles = earClip.GetTriangles();
 
     ASSERT_EQ(triangles.size(), 12);
-    // ¼ì²éÈı½ÇĞÎµÄ¶¥µãÊÇ·ñÕıÈ·
-    // ¾ßÌåµÄÈı½Ç»¯½á¹û¿ÉÄÜÓĞ¶àÖÖÕıÈ·µÄĞÎÊ½£¬ÕâÀïÖ»¼ì²éÊıÁ¿
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎµÄ¶ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½È·
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }

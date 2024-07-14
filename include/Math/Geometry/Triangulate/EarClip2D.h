@@ -44,7 +44,8 @@ namespace MathLib
 
 				HReal _Area(const Node *p, const Node *q, const Node *r) const
 				{
-					return OrientationUtils::TriangleArea(p->vertex, q->vertex, r->vertex);
+					HReal area = OrientationUtils::TriangleArea(p->vertex, q->vertex, r->vertex);
+					return IsZero(area) ? 0 : area;
 				}
 
 				bool _IsPointInTriangle(const Node *p, const Node *a, const Node *b, const Node *c) const
@@ -82,6 +83,22 @@ namespace MathLib
 					{
 						polygon[i] = i;
 					}
+				}
+
+				static std::vector<IntType> Triangulate(const std::vector<HVector2> &points, const Polygon &polygon)
+				{
+					EarClip2D<IntType> earClip;
+					earClip.SetPolygon(points, polygon);
+					earClip.Triangulate();
+					return earClip.GetTriangles();
+				}
+
+				static std::vector<IntType> Triangulate(const std::vector<HVector2> &points)
+				{
+					EarClip2D<IntType> earClip;
+					earClip.SetPolygon(points);
+					earClip.Triangulate();
+					return earClip.GetTriangles();
 				}
 
 				void Triangulate()

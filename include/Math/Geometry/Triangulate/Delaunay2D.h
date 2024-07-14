@@ -64,6 +64,14 @@ namespace MathLib
 					m_SuperTriangles.clear();
 					m_BoundBox.setEmpty();
 				}
+
+				static std::vector<IntType> Triangulate(const std::vector<HVector2> &points)
+				{
+					Delaunay2D delaunay;
+					delaunay.SetPoints(points);
+					return delaunay.GetTriangles();
+				}
+
 				void InsertPoint(const HVector2 &point)
 				{
 					if (m_Triangles.empty())

@@ -10,4 +10,5 @@
 #include "TestTriangleMesh.h"
 #include "TestPerlinNoise.h"
 #include "TestIntersect.h"
+#include "TestOrientation.h"
 #include "TestEarClip.h"
