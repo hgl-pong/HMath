@@ -11,8 +11,6 @@ TEST(EarClip2DTest, TriangulateConcavePolygon) {
     const std::vector<uint32_t>& triangles = earClip.GetTriangles();
 
     ASSERT_EQ(triangles.size(), 9);
-    // ��������εĶ����Ƿ���ȷ
-    // ��������ǻ���������ж�����ȷ����ʽ������ֻ�������
 }
 
 TEST(EarClip2DTest, TriangulatePolygonWithHole) {
@@ -23,18 +21,17 @@ TEST(EarClip2DTest, TriangulatePolygonWithHole) {
     std::vector<MathLib::HVector2> points = outer;
     points.insert(points.end(), inner.begin(), inner.end());
 
-    std::vector<uint32_t> polygon(outer.size());
+    MathLib::Geometry::Triangulate::EarClip2D<uint32_t>::Polygon polygon(2);
     for(size_t i = 0; i < outer.size(); ++i) {
-		polygon[i] = i;
-	}
+		polygon[0].vertices.push_back(i);
+        polygon[1].vertices.push_back(4 + i);
+	}   
 
-    earClip.SetPolygon(points);
+    earClip.SetPolygon(points,polygon);
     earClip.Triangulate();
     const std::vector<uint32_t>& triangles = earClip.GetTriangles();
 
-    ASSERT_EQ(triangles.size(), 18);
-    // ��������εĶ����Ƿ���ȷ
-    // ��������ǻ���������ж�����ȷ����ʽ������ֻ�������
+    ASSERT_EQ(triangles.size(), 24);
 }
 
 TEST(EarClip2DTest, TriangulateRandomPolygon) {
@@ -47,6 +44,4 @@ TEST(EarClip2DTest, TriangulateRandomPolygon) {
     const std::vector<uint32_t>& triangles = earClip.GetTriangles();
 
     ASSERT_EQ(triangles.size(), 12);
-    // ��������εĶ����Ƿ���ȷ
-    // ��������ǻ���������ж�����ȷ����ʽ������ֻ�������
 }

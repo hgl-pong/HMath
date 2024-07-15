@@ -36,26 +36,26 @@ namespace MathLib
 					{
 						return vertex == rhs.vertex;
 					}
+					bool EqualTo(const Node &rhs) const
+					{
+						return vertex == rhs.vertex;
+					}
 					HReal operator[](size_t i) const
 					{
 						return vertex[i];
 					}
+
 				};
 
 				HReal _Area(const Node *p, const Node *q, const Node *r) const
 				{
 					HReal area = OrientationUtils::TriangleArea(p->vertex, q->vertex, r->vertex);
-					return IsZero(area) ? 0 : area;
+					return IsZero(area) ? 0 : -area;
 				}
 
 				bool _IsPointInTriangle(const Node *p, const Node *a, const Node *b, const Node *c) const
 				{
 					return IntersectionUtils::IsPointInTriangle(p->vertex, a->vertex, b->vertex, c->vertex);
-				}
-
-				bool _IsPointOnSegment(const Node *p, const Node *a, const Node *b) const
-				{
-					return IntersectionUtils::IsOnSegment(p->vertex, a->vertex, b->vertex);
 				}
 
 				bool _IsEdgeEdgeIntersect(const Node *p1, const Node *q1, const Node *p2, const Node *q2) const
@@ -114,14 +114,14 @@ namespace MathLib
 					int threshold = 80;
 					std::size_t len = 0;
 
-                for (size_t i = 0; threshold >= 0 && i < m_Polygon.size(); i++) {
-                    threshold -= static_cast<int>(m_Polygon[i].vertices.size());
-                    len += m_Polygon[i].vertices.size();
-                }
+					for (size_t i = 0; threshold >= 0 && i < m_Polygon.size(); i++) {
+						threshold -= static_cast<int>(m_Polygon[i].vertices.size());
+						len += m_Polygon[i].vertices.size();
+					}
 
 					// estimate size of nodes and indices
 					m_NodesPool.reset(len * 3 / 2);
-					m_Triangles.reserve((len + m_Polygon[0].vertices.size())/3);
+					m_Triangles.reserve(len + m_Polygon[0].vertices.size());
 
 					Node *outerNode = _LinkedList(m_Polygon[0], true);
 					if (!outerNode || outerNode->prev == outerNode->next)
@@ -227,14 +227,14 @@ namespace MathLib
 					}
 					else
 					{
-						for (i = len; i > 0; i--)
+						for (i = len; i-- > 0; )
 							list = _InsertNode(m_Vertices + i, m_Points[ring[i]], list);
 					}
 
-					if (list && list->next && (*list == *(list->next)))
+					if (list && list->next && list->EqualTo( *(list->next)))
 					{
 						_RemoveNode(list);
-						list = nullptr;
+						list = list->next;
 					}
 
 					m_Vertices += len;
@@ -250,7 +250,7 @@ namespace MathLib
 					do
 					{
 						again = false;
-						if (!p->steiner && (*p == *(p->next) ||
+						if (!p->steiner && (p->EqualTo(*(p->next)) ||
 											IsZero(_Area(p->prev, p, p->next))))
 						{
 							_RemoveNode(p);
@@ -549,7 +549,7 @@ namespace MathLib
 						Node *b = p->next->next;
 
 						// a self-intersection where edge (v[i-1],v[i]) intersects (v[i+1],v[i+2])
-						if (!(*a == *b) && _IsEdgeEdgeIntersect(a, p, p->next, b) && _LocallyInside(a, b) && _LocallyInside(b, a))
+						if (!a ->EqualTo(*b) && _IsEdgeEdgeIntersect(a, p, p->next, b) && _LocallyInside(a, b) && _LocallyInside(b, a))
 						{
 							m_Triangles.emplace_back(a->vertexIndex);
 							m_Triangles.emplace_back(p->vertexIndex);
