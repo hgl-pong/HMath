@@ -1,6 +1,6 @@
 #pragma once
 #include <Math/Geometry/Orientaion.h>
-
+#include <Math/Geometry/Geometry.h>
 namespace MathLib
 {
 	namespace IntersectionUtils

@@ -114,7 +114,7 @@ namespace MathLib
 			{
 				m_Normals.resize(m_Vertices.size(), HVector3(0.0f, 0.0f, 0.0f));
 
-				for (const TriangleIndex &triangle : m_Triangles)
+				for (const TriangleIndex<IntType> &triangle : m_Triangles)
 				{
 					HVector3 normal = (m_Vertices[triangle.vertices[1]] - m_Vertices[triangle.vertices[0]]).cross(m_Vertices[triangle.vertices[2]] - m_Vertices[triangle.vertices[0]]).normalized();
 
@@ -136,7 +136,7 @@ namespace MathLib
 
 				for (size_t i = 0; i < m_Triangles.size(); i++)
 				{
-					const TriangleIndex &triangle = m_Triangles[i];
+					const TriangleIndex<IntType> &triangle = m_Triangles[i];
 					m_BoundingBoxes[i].setEmpty();
 					m_BoundingBoxes[i].extend(m_Vertices[triangle.vertices[0]]);
 					m_BoundingBoxes[i].extend(m_Vertices[triangle.vertices[1]]);
@@ -164,5 +164,9 @@ namespace MathLib
 			std::vector<TriangleIndex<IntType>> m_Triangles;
 		};
 
+		typedef TriangleMesh<uint8_t> TriangleMesh8;
+		typedef TriangleMesh<uint16_t>TriangleMesh16;
+		typedef TriangleMesh<uint32_t> TriangleMesh32;
+		typedef TriangleMesh<uint64_t> TriangleMesh64;
 	} // namespace MeshTool
 } // namespace MathLib
