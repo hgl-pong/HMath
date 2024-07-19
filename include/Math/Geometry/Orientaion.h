@@ -1,5 +1,6 @@
 #pragma once
 #include <Math/Math.h>
+#include <Math/Geometry/Geometry.h>
 
 namespace MathLib
 {
@@ -151,5 +152,15 @@ namespace MathLib
 		//		return sign;
 		//	return 0;
 		//}
+
+		inline bool Project(const Geometry::Plane & plane, const HVector3& point, const HVector3& axisX, HVector2& result)
+		{	
+			const HReal pLength = plane.m_Normal.dot(axisX);
+			if(IsZero(pLength))
+				return false;
+			const HVector3 perpendicularAxis = plane.m_Normal.cross(axisX);
+			result = HVector2(point.dot(axisX), point.dot(perpendicularAxis));
+			return true;
+		}
 	}
 }

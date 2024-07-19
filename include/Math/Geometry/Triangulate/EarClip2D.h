@@ -3,7 +3,6 @@
 #include <Math/GraphicUtils/MeshCommon.h>
 #include <vector>
 #include <Math/Geometry/Intersection.h>
-#include <Math/Geometry/Triangulate/earcut.hpp>
 #include <Math/ObjectPool.h>
 #include <Math/Geometry/Orientaion.h>
 namespace MathLib
