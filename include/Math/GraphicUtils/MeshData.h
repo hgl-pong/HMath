@@ -389,5 +389,40 @@ namespace MathLib
 			}
 			return meshData;
 		}
+
+		template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
+		inline HReal CalCulateVolume(const MeshData<IntType> &meshdata)
+		{
+			HReal volume = 0;
+			const std::vector<HVector3> &vertices = meshdata.m_Vertices;
+			const std::vector<IntType> &indices = meshdata.m_Indices;
+			const size_t triangleCount = indices.size() / 3;
+			for (size_t i = 0; i < triangleCount; i++)
+			{
+				const HVector3 &a = vertices[indices[3 * i]];
+				const HVector3 &b = vertices[indices[3 * i + 1]];
+				const HVector3 &c = vertices[indices[3 * i + 2]];
+				volume += (a[0] * b[1] * c[2] - a[0] * b[2] * c[1] - a[1] * b[0] * c[2] + a[1] * b[2] * c[0] + a[2] * b[0] * c[1] - a[2] * b[1] * c[0]);
+			}
+			return HReal(1.0f / 6.0f) * std::abs(volume);
+		}
+
+		template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
+		inline MeshData<IntType> MergeMeshData(const std::vector<MeshData<IntType>> &meshDatas)
+		{
+			MeshData<IntType> outputMesh;
+
+			std::vector<HVector3> &outputVertices = outputMesh.m_Vertices;
+			std::vector<IntType> &outputIndices = outputMesh.m_Indices;
+
+			for (const auto &mesh : meshDatas)
+			{
+				outputVertices.reserve(mesh.m_Vertices.size());
+				outputIndices.reserve(mesh.m_Indices.size());
+				outputVertices.insert(outputVertices.end(), mesh.m_Vertices.begin(), mesh.m_Vertices.end());
+				outputIndices.insert(outputIndices.end(), mesh.m_Indices.begin(), mesh.m_Indices.end());
+			}
+			return outputMesh;
+		}
 	}
 }
