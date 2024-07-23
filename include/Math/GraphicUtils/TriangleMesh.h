@@ -36,7 +36,7 @@ namespace MathLib
 			{
 				if (triangles.size() % 3 != 0)
 					return;
-				const uint32_t triangleCount = triangles.size() / 3;
+				const uint32_t triangleCount = static_cast<uint32_t>(triangles.size()) / 3;
 				m_Triangles.resize(triangleCount);
 				for (uint32_t i = 0; i < triangleCount; i++)
 				{
@@ -165,7 +165,7 @@ namespace MathLib
 		};
 
 		typedef TriangleMesh<uint8_t> TriangleMesh8;
-		typedef TriangleMesh<uint16_t>TriangleMesh16;
+		typedef TriangleMesh<uint16_t> TriangleMesh16;
 		typedef TriangleMesh<uint32_t> TriangleMesh32;
 		typedef TriangleMesh<uint64_t> TriangleMesh64;
 	} // namespace MeshTool
