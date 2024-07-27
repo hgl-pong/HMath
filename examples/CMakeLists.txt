@@ -1,4 +1,5 @@
 set(ENABLE_DELAUNAY2D_EXAMPLE true)
+set(ENABLE_IMAGE_UTILS_EXAMPLE true)
 
 if(${ENABLE_DELAUNAY2D_EXAMPLE})
 set(DELAUNAY_2D_EXAMPLE Delaunay2DExample)
@@ -14,6 +15,25 @@ target_include_directories(${DELAUNAY_2D_EXAMPLE} PUBLIC ./include
     ${PROJECT_SOURCE_DIR}/include
 )
 target_link_libraries(${DELAUNAY_2D_EXAMPLE} PRIVATE
+    Eigen3::Eigen
+    GLUT::GLUT
+)
+endif()
+
+if(${ENABLE_IMAGE_UTILS_EXAMPLE})
+set(IMAGE_UTILS_EXAMPLE ImageUtilsExample)
+file(GLOB IMAGE_UTILS_EXAMPLE_SOURCE_FILES
+    ImageUtilsExample.cpp
+)
+add_executable(${IMAGE_UTILS_EXAMPLE} ${IMAGE_UTILS_EXAMPLE_SOURCE_FILES})
+find_package(Eigen3 CONFIG REQUIRED)
+find_package(GLUT REQUIRED)
+
+target_include_directories(${IMAGE_UTILS_EXAMPLE} PUBLIC ./include
+    PRIVATE 
+    ${PROJECT_SOURCE_DIR}/include
+)
+target_link_libraries(${IMAGE_UTILS_EXAMPLE} PRIVATE
     Eigen3::Eigen
     GLUT::GLUT
 )

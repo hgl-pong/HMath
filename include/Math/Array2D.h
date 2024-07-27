@@ -1,5 +1,5 @@
 #pragma once
-#include <Parallel.h>
+#include <Math/Parallel.h>
 namespace MathLib
 {
     template <class Type>
