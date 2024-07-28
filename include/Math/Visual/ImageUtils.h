@@ -35,9 +35,10 @@ namespace MathLib
             UNKNOWN
         };
 
-        enum class ImageFormat : unsigned int
+        enum ImageFormat : int
         {
             GRAY = 1,
+            RG =2,
             RGB = 3,
             RGBA = 4
         };
@@ -71,17 +72,13 @@ namespace MathLib
         }
 
         inline ImageFormat GetImageFormat(int channels) { return channels == 1 ? ImageFormat::GRAY : (channels == 3 ? ImageFormat::RGB : ImageFormat::RGBA); }
-
-        template <ImageFormat Format>
-        struct Pixel
-        {
-            uint8_t data[Format];
-            uint8_t& operator[](uint8_t index) { return data[index]; }
-        };
-
-        typedef Pixel<ImageFormat::GRAY> PixelGray;
-        typedef Pixel<ImageFormat::RGB> PixelRGB;
-        typedef Pixel<ImageFormat::RGBA> PixelRGBA;
+        
+        template <int N>
+        using HPixel = HVector<uint8_t, N>;
+        typedef HPixel<ImageFormat::GRAY> HPixelGray;
+        typedef HPixel<ImageFormat::RGB> HPixelRG;
+        typedef HPixel<ImageFormat::RGB> HPixelRGB;
+        typedef HPixel<ImageFormat::RGBA> HPixelRGBA;
 
         void Uint8ToReal(const std::vector<uint8_t>& data, std::vector<HReal>& realData, const HReal min = 0, const HReal max = 1)
         {
@@ -131,7 +128,7 @@ namespace MathLib
         }
 
         template <ImageFormat Format>
-        bool SaveImage(const std::string& filename, const std::vector<Pixel<Format>>& data, uint32_t width, uint32_t height, const bool compress = true)
+        bool SaveImage(const std::string& filename, const std::vector<HPixel<Format>>& data, uint32_t width, uint32_t height, const bool compress = true)
         {
             const ImageFileType fileType = GetImageFileType(filename);
             if (fileType == ImageFileType::UNKNOWN)
@@ -185,7 +182,7 @@ namespace MathLib
             }
         }
 
-        bool LoadImage(const std::string& filename, MathLib::Array2D<HReal>& array2D)
+        bool LoadImage(const std::string& filename, Array2D<HReal>& array2D)
         {
             std::vector<uint8_t> data;
             int width, height;
@@ -210,20 +207,20 @@ namespace MathLib
             return true;
         }
 
-        bool SaveImage(const std::string& filename, const MathLib::Array2D<HReal>& array2D, const bool compress = true)
+        bool SaveImage(const std::string& filename, const Array2D<HReal>& array2D, const bool compress = true)
         {
-            std::vector<PixelGray> pixels;
+            std::vector<HPixelGray> pixels;
             const uint32_t width = array2D.GetSizeX();
             const uint32_t height = array2D.GetSizeY();
             const std::vector<HReal>& data = array2D.GetData();
             pixels.resize(width * height);
             for (int i = 0; i < width * height; ++i)
                 pixels[i][0] = data[i];
-            return SaveImage(filename, pixels, width, height, compress);
+            return SaveImage<ImageFormat::GRAY>(filename, pixels, width, height, compress);
         }
 
         template< typename VectorType = HVector2 >
-        bool LoadImage(const std::string& filename, MathLib::Array2D<VectorType>& array2D)
+        bool LoadImage(const std::string& filename, Array2D<VectorType>& array2D)
         {
             std::vector<uint8_t> data;
             int width, height;
@@ -235,12 +232,52 @@ namespace MathLib
             std::vector<HReal> realData;
             Uint8ToReal(data, realData);
 
-            auto UpdateFun = [&](size_t i, size_t j)
-                {
+            Array2D<VectorType>::ArrayUpdateFn updateFn;
+            
+            uint32_t channels = static_cast<uint32_t>(format);
 
+            updateFn = [&](std::vector<VectorType>& localData, size_t i, size_t j)
+                {
+                    for(uint32_t k = 0; k < channels; ++k)
+                        localData[i * width + j][k] = realData[(i * width + j) * dim + k];
                 };
             array2D.ExecuteUpdate(UpdateFun);
             return true;
+        }
+
+        template< typename VecorType = HVector2 >
+        bool SaveImage(const std::string& filename, const Array2D<VecorType>& array2D, const bool compress = true)
+        {
+            const std::vector<VecorType>& data = array2D.GetData();
+            std::vector<uint8_t> uint8Data;
+
+            const uint32_t dim = VectorType().size();
+            if (dim == 4)
+            {
+                std::vector<HPixelRGBA> pixels;
+                const uint32_t width = array2D.GetSizeX();
+                const uint32_t height = array2D.GetSizeY();
+                const std::vector<VecorType>& data = array2D.GetData();
+                pixels.resize(width * height);
+                memset(&pixels[0], 0, width * height * sizeof(HPixelRGBA));
+                for (int i = 0; i < width * height; ++i)
+                    for (int k = 0; k < dim; ++k)
+                        pixels[i][k] = data[i][k];
+                return SaveImage<ImageFormat::RGBA>(filename, pixels, width, height, compress);
+            }
+            else
+            {
+                std::vector<HPixelRGB> pixels;
+                const uint32_t width = array2D.GetSizeX();
+                const uint32_t height = array2D.GetSizeY();
+                const std::vector<VecorType>& data = array2D.GetData();
+                pixels.resize(width * height);
+                memset(&pixels[0], 0, width * height * sizeof(HPixelRGB));
+                for (int i = 0; i < width * height; ++i)
+                    for (int k = 0; k < dim; ++k)
+                        pixels[i][k] = data[i][k];
+                return SaveImage<ImageFormat::RGB>(filename, pixels, width, height, compress);
+            }
         }
 
     } // namespace ImageUtils

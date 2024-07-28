@@ -1,10 +1,13 @@
 #pragma once
 #include <Math/Parallel.h>
+#include <functional>
 namespace MathLib
 {
     template <class Type>
     class Array2D
     {
+    public:
+        typedef std::function<void(std::vector<Type>&,size_t, size_t)> ArrayUpdateFn;
     public:
         Array2D(size_t sizeX = 0, size_t sizeY = 0) : m_Data(sizeX * sizeY),
                                                       m_SizeX(sizeX),
@@ -35,6 +38,7 @@ namespace MathLib
             this->m_SizeY = m_SizeY;
 
             m_Data.resize(m_SizeX * m_SizeY);
+            memset(&m_Data[0], 0, m_SizeX * m_SizeY * sizeof(Type));
         }
         Array2D &operator=(Array2D const &copy_from) = default;
 
@@ -106,9 +110,13 @@ namespace MathLib
             memset(m_Data.data(), 0, m_Data.size() * sizeof(Type));
         }
 
-        void ExecuteUpdate(std::function<void(size_t, size_t)> update)
+        void ExecuteUpdate(ArrayUpdateFn update)
         {
-            Parallel::ParallelFor<size_t>(0, m_SizeX, 0, m_SizeY, update);
+            const auto fn= [&](size_t x, size_t y)
+            {
+                update(m_Data, x, y);
+            };
+            Parallel::ParallelFor<size_t>(0, m_SizeX, 0, m_SizeY, fn);
         }
 
         size_t GetSizeX() const
