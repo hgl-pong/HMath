@@ -480,7 +480,7 @@ TEST(IntersectionUtilsTest, RayIntersectAABBox2D)
     MathLib::HVector2 rayOrigin(0, 0);
     MathLib::HVector2 rayDir(1, 1);
     MathLib::HAABBox2D aabb(MathLib::HVector2(-1, -1), MathLib::HVector2(1, 1));
-    MathLib::HReal tmin, tmax;
+    MathLib::HReal tmin =0, tmax= H_REAL_MAX;
 
     // 测试射线从原点出发，方向为(1,1)，与AABB相交
     EXPECT_TRUE(MathLib::IntersectionUtils::RayIntersectAABBox(rayOrigin, rayDir, aabb, tmin, tmax));

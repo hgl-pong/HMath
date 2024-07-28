@@ -1,4 +1,5 @@
 #pragma once
+#include <Math/MathUtils.h>
 #include <Math/Geometry/Orientaion.h>
 #include <Math/Geometry/Geometry.h>
 namespace MathLib
@@ -227,11 +228,11 @@ namespace MathLib
 		template <uint32_t N>
 		inline bool RayIntersectAABBox(const HVectorR<N> &rayOrigin, const HVectorR<N> &rayDir, const HAABBox<N> &aabb, HReal &tmin, HReal &tmax)
 		{
-			// tmin = 0.f;
-			// tmax = H_REAL_MAX;
+			//tmin = 0.f;
+			//tmax = H_REAL_MAX;
 			if (aabb.contains(rayOrigin))
 				return true;
-			if (rayDir.isZero())
+			if (IsZero(rayDir))
 				return false;
 			const HVectorR<N> &min = aabb.min();
 			const HVectorR<N> &max = aabb.max();

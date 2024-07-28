@@ -4,7 +4,8 @@
 #include <omp.h>
 #include <mutex>
 #define HFOR_EACH(loop) \
-    _Pragma("omp parallel for") for (loop)
+    _Pragma("omp parallel for")\
+ for (loop)
 #else
 #define HFOR_EACH(loop) \
     for (loop)
@@ -76,9 +77,9 @@ namespace MathLib
         template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
         void ParallelFor(IntType begin0, IntType end0, IntType begin1, IntType end1, const ParallelFunction2<IntType>&func)
         {
-            for (IntType i = begin0; i < end0; i++)
+            for (IntType i = begin1; i < end1; i++)
             {
-                ParallelFor<IntType>(begin1, end1, [&](IntType j)
+                ParallelFor<IntType>(begin0, end0, [&](IntType j)
                                      { func(i, j); });
             }
         }
@@ -89,9 +90,9 @@ namespace MathLib
 #ifdef USE_OPENMP
             std::mutex mutex;
 
-            for (IntType i = begin0; i < end0; i++)
+            for (IntType i = begin1; i < end1; i++)
             {
-                for (IntType j = begin1; j < end1; j++)
+                for (IntType j = begin0; j < end0; j++)
                 {
                     mutex.lock();
                     func(i, j);
@@ -106,10 +107,10 @@ namespace MathLib
         template <typename IntType, typename = std::enable_if_t<std::is_integral<IntType>::value>>
         void ParallelFor(IntType begin0, IntType end0, IntType begin1, IntType end1, IntType begin2, IntType end2, const ParallelFunction3<IntType>&func)
         {
-            for (IntType i = begin0; i < end0; i++)
+            for (IntType i = begin2; i < end2; i++)
             {
                 ParallelFor<IntType>(begin1, end1, [&](IntType j)
-                                     { ParallelFor<IntType>(begin2, end2, [&](IntType k)
+                                     { ParallelFor<IntType>(begin0, end0, [&](IntType k)
                                                             { func(i, j, k); }); });
             }
         }
@@ -120,11 +121,11 @@ namespace MathLib
 #ifdef USE_OPENMP
             std::mutex mutex;
 
-            for (IntType i = begin0; i < end0; i++)
+            for (IntType i = begin2; i < end2; i++)
             {
                 for (IntType j = begin1; j < end1; j++)
                 {
-                    for (IntType k = begin2; k < end2; k++)
+                    for (IntType k = begin0; k < end0; k++)
                     {
                         mutex.lock();
                         func(i, j, k);

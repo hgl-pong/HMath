@@ -5,6 +5,7 @@
 //#include <Math/HSolver>
 #include <Math/HAccelerate>
 #include <Math/HGeometry>
+#include <Math/Visual/ImageUtils.h>
 
 #include "TestHashGirid.h"
 #include "TestTriangleMesh.h"
@@ -12,3 +13,4 @@
 #include "TestIntersect.h"
 #include "TestOrientation.h"
 #include "TestEarClip.h"
+#include "TestImageUtils.h"

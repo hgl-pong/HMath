@@ -112,11 +112,11 @@ namespace MathLib
 
         void ExecuteUpdate(ArrayUpdateFn update)
         {
-            const auto fn= [&](size_t x, size_t y)
+            const auto fn= [&](int x, int y)
             {
                 update(m_Data, x, y);
             };
-            Parallel::ParallelFor<size_t>(0, m_SizeX, 0, m_SizeY, fn);
+            Parallel::ParallelFor<int>(0, m_SizeX, 0, m_SizeY, fn);
         }
 
         size_t GetSizeX() const

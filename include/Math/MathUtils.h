@@ -123,4 +123,13 @@ namespace MathLib
 	{
 		return N;
 	}
+
+	template <int N>
+	inline bool IsZero(const HVectorR<N>& v)
+	{
+		for (int i = 0; i < N; ++i)
+			if (IsZero(v[i]))
+				return false;
+		return true;
+	}
 }
