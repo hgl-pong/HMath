@@ -8,15 +8,15 @@ void main()
     if (_waccess(filePath, 0) == -1)
     {
         _wmkdir(filePath);
-        printf("Directory created.\n");
+        MATHLOG_INFO("Directory created.\n");
     }
     else
     {
-        printf("Directory already exists.\n");
+        MATHLOG_INFO("Directory already exists.\n");
     }
 
 	Array2D<HReal> imageGray;
-	ImageUtils::LoadImage("..\\..\\data\\img\\testPng.png", imageGray);
+	ImageUtils::LoadImage("..\\..\\data\\img\\testPng100.png", imageGray);
 	ImageUtils::SaveImage("output\\testPngOutputGray.png", imageGray);
     ImageUtils::SaveImage("output\\testPngOutputGray.bmp", imageGray);
     ImageUtils::SaveImage("output\\testPngOutputGray.jpg", imageGray);

@@ -1,4 +1,5 @@
 #pragma once
+#include <Math/Core/LogUtils.h>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <stdint.h>

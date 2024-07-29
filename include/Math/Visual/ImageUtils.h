@@ -157,7 +157,7 @@ namespace MathLib
             ImageFormat format;
             if (!LoadImage(filename, data, width, height, format))
             {
-                printf("Failed to load image: %s\n", filename.c_str());
+                MATHLOG_ERROR("Failed to load image: %s\n", filename.c_str());
                 return false;
             }
             std::vector<HReal> realData;
