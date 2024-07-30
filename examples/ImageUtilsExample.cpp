@@ -1,22 +1,18 @@
 #include <Math/Visual/ImageUtils.h>
-
+#include <Math/Core/FileSystem.h>
 using namespace MathLib;
 void main()
 {
     // create directory for output if not exist
-    const wchar_t* filePath = L"output";
-    if (_waccess(filePath, 0) == -1)
+    const std::string filePath = "output";
+    if (!FileSystem::IsDirectoryExists(filePath))
     {
-        _wmkdir(filePath);
+        FileSystem::CreateDirectory(filePath);
         MATHLOG_INFO("Directory created.\n");
-    }
-    else
-    {
-        MATHLOG_INFO("Directory already exists.\n");
     }
 
 	Array2D<HReal> imageGray;
-	ImageUtils::LoadImage("..\\..\\data\\img\\testPng100.png", imageGray);
+	ImageUtils::LoadImage("..\\..\\data\\img\\testPng.png", imageGray);
 	ImageUtils::SaveImage("output\\testPngOutputGray.png", imageGray);
     ImageUtils::SaveImage("output\\testPngOutputGray.bmp", imageGray);
     ImageUtils::SaveImage("output\\testPngOutputGray.jpg", imageGray);
@@ -50,4 +46,5 @@ void main()
     ImageUtils::SaveImage("output\\testPngOutputRGBA.bmp", imageRGBA);
     ImageUtils::SaveImage("output\\testPngOutputRGBA.jpg", imageRGBA);
     ImageUtils::SaveImage("output\\testPngOutputRGBA.tga", imageRGBA);
+
 }
