@@ -1,4 +1,5 @@
 #pragma once
+#include <Math/MathUtils.h>
 #include <Math/Parallel.h>
 #include <functional>
 namespace MathLib
@@ -7,38 +8,54 @@ namespace MathLib
     class Array2D
     {
     public:
-        typedef std::function<void(std::vector<Type>&,size_t, size_t)> ArrayUpdateFn;
+        typedef std::function<Type(uint32_t, uint32_t)> ArrayUpdateFn;
+
     public:
         Array2D(size_t sizeX = 0, size_t sizeY = 0) : m_Data(sizeX * sizeY),
-                                                      m_SizeX(sizeX),
-                                                      m_SizeY(sizeY)
+            m_Size(sizeX,sizeY)
         {
             ResetData();
         };
+
+        Array2D(HVector2I& size) : m_Data(size[0] * size[1]), m_Size(size)
+        {
+            ResetData();
+        }
         Array2D(Array2D const &copy_from) = default;
         Array2D(Array2D &&move_from) = default;
 
         Type &operator()(size_t x, size_t y)
         {
-
-            assert((x < m_SizeX) && (y < m_SizeY));
-            return m_Data[x * m_SizeY + y];
+            x = Clamp(x, 0, m_Size[0] - 1);
+            y = Clamp(y, 0, m_Size[1] - 1);
+            assert((x < m_Size[0]) && (y < m_Size[1]));
+            return m_Data[x * m_Size[0] + y];
         }
         Type operator()(size_t x, size_t y) const
         {
-
-            assert((x < m_SizeX) && (y < m_SizeY));
-            return m_Data[x * m_SizeY + y];
+            x = Clamp(x, 0, m_Size[0] - 1);
+            y = Clamp(y, 0, m_Size[1] - 1);
+            assert((x < m_Size[0]) && (y < m_Size[1]));
+            return m_Data[x * m_Size[0] + y];
         }
 
-        void ReSize(size_t m_SizeX, size_t m_SizeY)
+        Type& operator()(const HVector2I& pos)
         {
+            return (*this)(pos[0], pos[1]);
+        }
 
-            this->m_SizeX = m_SizeX;
-            this->m_SizeY = m_SizeY;
+        Type operator()(const HVector2I& pos) const 
+        {
+            return (*this)(pos[0], pos[1]);
+        }
 
-            m_Data.resize(m_SizeX * m_SizeY);
-            memset(&m_Data[0], 0, m_SizeX * m_SizeY * sizeof(Type));
+        void ReSize(size_t sizeX, size_t sizeY)
+        {
+            m_Size[0] = sizeX;
+            m_Size[1] = sizeY;
+
+            m_Data.resize(sizeX * sizeY);
+            memset(&m_Data[0], 0, sizeX * sizeY * sizeof(Type));
         }
         Array2D &operator=(Array2D const &copy_from) = default;
 
@@ -60,7 +77,7 @@ namespace MathLib
         }
         Array2D &operator+=(Array2D const &field)
         {
-            assert(m_SizeX == field.m_SizeX && m_SizeY == field.m_SizeY);
+            assert(m_Size[0] == field.m_Size[0] && m_Size[1] == field.m_Size[1]);
 
             size_t size = field.m_Data.size();
             for (size_t i = 0; i < size; ++i)
@@ -72,7 +89,7 @@ namespace MathLib
         }
         Array2D &operator-=(Array2D const &field)
         {
-            assert(m_SizeX == field.m_SizeX && m_SizeY == field.m_SizeY);
+            assert(m_Size[0] == field.m_Size[0] && m_Size[1] == field.m_Size[1]);
 
             size_t size = field.m_Data.size();
             for (size_t i = 0; i < size; ++i)
@@ -110,30 +127,39 @@ namespace MathLib
             memset(m_Data.data(), 0, m_Data.size() * sizeof(Type));
         }
 
-        void ExecuteUpdate(ArrayUpdateFn update)
+        void ExecuteUpdate(ArrayUpdateFn updateFn)
         {
-            const auto fn= [&](int x, int y)
+            const Parallel::ParallelFunction2<uint32_t> fn = [&](uint32_t x, uint32_t y)
             {
-                update(m_Data, x, y);
+                (*this)(x, y) = updateFn(x, y);
             };
-            Parallel::ParallelFor<int>(0, m_SizeX, 0, m_SizeY, fn);
+            Parallel::ParallelFor<uint32_t>(0, m_Size[0], 0, m_Size[1], fn);
         }
 
-        size_t GetSizeX() const
+        uint32_t GetSizeX() const
         {
-			return m_SizeX;
-		}
+            return m_Size[0];
+        }
 
-        size_t GetSizeY() const
+        uint32_t GetSizeY() const
         {
-            return m_SizeY;
+            return m_Size[1];
+        }
+
+        HVector2UI GetDimension() const
+        {
+            return m_Size;
         }
 
     private:
         std::vector<Type> m_Data;
-
-        size_t m_SizeX;
-        size_t m_SizeY;
+        HVector2UI m_Size;
     };
+
+    typedef Array2D<HReal> Array2DF;
+    typedef Array2D<HVector2> Array2D2F;
+    typedef Array2D<HVector3> Array2D3F;
+    typedef Array2D<HVector4> Array2D4F;
+
 
 } // namespace Utility

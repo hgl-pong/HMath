@@ -17,9 +17,8 @@ namespace MathLib
 			HReal d1 = ab.dot(ap);
 			HReal d2 = ac.dot(ap);
 
-			if (d1 <= 0.0f && d2 <= 0.0f)
-			{
-				t1 = 1.0f;
+			if (d1 <= 0.0f && d2 <= 0
+							t1 = 1.0f;
 				t2 = 0.0f;
 				t3 = 0.0f;
 				return (p - a).norm();

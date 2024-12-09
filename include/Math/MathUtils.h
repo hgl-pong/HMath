@@ -38,6 +38,12 @@ namespace MathLib
 	}
 
 	template <class S, class T>
+	inline S BiLerp(const S& a, const S& b, const S& c, const S& d, T u, T v)
+	{
+		return Lerp(Lerp(a, b, u), Lerp(c, d, u), v);
+	}
+
+	template <class S, class T>
 	inline void TriLerp(const S &a, const S &b, const S &c, const S &d, const S &e, const S &f, const S &g, const S &h, T u, T v, T w, S &result)
 	{
 		S temp1, temp2;

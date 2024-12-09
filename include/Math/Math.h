@@ -33,7 +33,7 @@ namespace MathLib
 	typedef HVectorI<Eigen::Dynamic> HVectorXI;
 
 	template <int N>
-	using HVectorUI = HVector<unsigned int, N>;
+	using HVectorUI = HVector<uint32_t, N>;
 	typedef HVectorUI<2> HVector2UI;
 	typedef HVectorUI<3> HVector3UI;
 	typedef HVectorUI<4> HVector4UI;
@@ -82,6 +82,10 @@ namespace MathLib
 		return t;
 #endif
 	}
+
+	template<typename T>
+	using SignedType = std::make_signed_t<T>;
+
 }
 
 #include <Math/Epsilon.h>

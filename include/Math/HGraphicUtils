@@ -6,4 +6,6 @@
 #include <Math/GraphicUtils/Frustum.h>
 #include <Math/GraphicUtils/HalfEdgeMesh.h>
 #include <Math/GraphicUtils/TriangleMesh.h>
-#include <Math/GraphicUtils/PerlinNoise.h>
+
+#include <Math/GraphicUtils/Noise/PerlinNoise.h>
+#include <Math/GraphicUtils/Noise/SImplexNoise.h>

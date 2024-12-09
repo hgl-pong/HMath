@@ -202,10 +202,12 @@ namespace MathLib
 
             uint32_t channels = std::min(static_cast<int>(format), N);
 
-            updateFn = [&](std::vector<HVector<Type, N>> &localData, size_t i, size_t j)
+            updateFn = [&](size_t i, size_t j) -> HVector<Type, N>
             {
+                HVector<Type, N> localData;
                 for (uint32_t k = 0; k < channels; ++k)
-                    localData[i * width + j][k] = realData[(i * width + j) * format + k];
+                    localData[k] = realData[(i * width + j) * format + k];
+                return localData;
             };
             array2D.ExecuteUpdate(updateFn);
             return true;

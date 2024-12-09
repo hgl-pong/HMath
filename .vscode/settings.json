@@ -3,10 +3,10 @@
     "CMAKE_TOOLCHAIN_FILE": "${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake"
   },
   "files.associations": {
+    "*.hlsl": "hlsl",
     "*.ush": "hlsl",
     "*.fx5": "hlsl",
     "*.h5": "hlsl",
-    "*.hlsl": "hlsl",
     "unordered_map": "cpp",
     "xstring": "cpp",
     "algorithm": "cpp",
@@ -107,7 +107,8 @@
     "haccelerate": "cpp",
     "hgeometry": "cpp",
     "any": "cpp",
-    "expected": "cpp"
+    "expected": "cpp",
+    "hgraphicutils": "cpp"
   },
   "cSpell.words": [
     "Hadamard"
