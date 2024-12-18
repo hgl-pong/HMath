@@ -5,6 +5,7 @@
 #include <Math/Parallel.h>
 #include <fstream>
 #include <Math/Procedural/HydraulicErosion.h>
+#include <Math/Procedural/WindErosion.h>
 
 #define SAVE_IMAGE 1
 #define SAVE_MESH 1
@@ -323,9 +324,10 @@ void main()
 #endif
     }
 #else
-    MathLib::Procedural::HydraulicErosion::Params params;
-
-    MathLib::Procedural::HydraulicErosion erosion(heightMap, params);
+    //MathLib::Procedural::HydraulicErosion::Params params;
+    //MathLib::Procedural::HydraulicErosion erosion(heightMap, params);
+    MathLib::Procedural::WindErosion::Params params;
+    MathLib::Procedural::WindErosion erosion(heightMap, params);
     std::vector<MathLib::HReal> heights = heightMap.GetData();
 
     while (remaining > 0)
