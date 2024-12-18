@@ -14,3 +14,4 @@
 #include "TestOrientation.h"
 #include "TestEarClip.h"
 #include "TestImageUtils.h"
+#include "TestProcedural.h"

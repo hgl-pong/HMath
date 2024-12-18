@@ -28,6 +28,15 @@ namespace MathLib
 		return a + HadamardProduct<N>(t, b - a);
 	}
 
+	template <int N>
+	inline Eigen::Matrix<HReal, N, 1> Lerp(const Eigen::Matrix<HReal, N, 1>& a, const Eigen::Matrix<HReal, N, 1>& b, const HReal& t)
+	{
+		Eigen::Matrix<HReal, N, 1> tVec;
+		for (int i = 0; i < N; ++i)
+			tVec[i] = Lerp(a[i], b[i], t);
+		return tVec;
+	}
+
 	template <class S, class T>
 	inline void BiLerp(const S &a, const S &b, const S &c, const S &d, T u, T v, S &result)
 	{
@@ -67,7 +76,7 @@ namespace MathLib
 
 	inline HReal Clamp(const HReal &a, const HReal &b, const HReal &c)
 	{
-		return std::max(b, std::min(a, c));
+		return std::clamp(a, b, c);
 	}
 
 	template <int N>

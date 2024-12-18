@@ -4,7 +4,7 @@
 #include <functional>
 namespace MathLib
 {
-    template <class Type>
+    template <class Type, class Alloc = std::allocator<Type>>
     class Array2D
     {
     public:
@@ -12,12 +12,12 @@ namespace MathLib
 
     public:
         Array2D(size_t sizeX = 0, size_t sizeY = 0) : m_Data(sizeX * sizeY),
-            m_Size(sizeX,sizeY)
+                                                      m_Size(sizeX, sizeY)
         {
             ResetData();
         };
 
-        Array2D(HVector2I& size) : m_Data(size[0] * size[1]), m_Size(size)
+        Array2D(HVector2I &size) : m_Data(size[0] * size[1]), m_Size(size)
         {
             ResetData();
         }
@@ -39,12 +39,12 @@ namespace MathLib
             return m_Data[x * m_Size[0] + y];
         }
 
-        Type& operator()(const HVector2I& pos)
+        Type &operator()(const HVector2I &pos)
         {
             return (*this)(pos[0], pos[1]);
         }
 
-        Type operator()(const HVector2I& pos) const 
+        Type operator()(const HVector2I &pos) const
         {
             return (*this)(pos[0], pos[1]);
         }
@@ -57,6 +57,12 @@ namespace MathLib
             m_Data.resize(sizeX * sizeY);
             memset(&m_Data[0], 0, sizeX * sizeY * sizeof(Type));
         }
+
+        void ReSize(const HVector2UI &size)
+        {
+            ReSize(size[0], size[1]);
+        }
+
         Array2D &operator=(Array2D const &copy_from) = default;
 
         Array2D operator+(Array2D const &field) const
@@ -151,15 +157,40 @@ namespace MathLib
             return m_Size;
         }
 
+        Type Sample (const HVector2 &pos) const
+        {
+            HVector2I posI = HVector2I(pos[0], pos[1]);
+            HVector2 offset = HVector2(pos[0] - posI[0], pos[1] - posI[1]);
+            HVector2I leftPos = HVector2I(posI[0], posI[1]);
+            HVector2I rightPos = HVector2I(posI[0] + 1, posI[1]);
+            HVector2I downPos = HVector2I(posI[0], posI[1] + 1);
+            HVector2I rightDownPos = HVector2I(posI[0] + 1, posI[1] + 1);
+
+            Type left = (*this)(leftPos);
+            Type right = (*this)(rightPos);
+            Type down = (*this)(downPos);
+            Type rightDown = (*this)(rightDownPos);
+            return BiLerp(left, right, down, rightDown, offset[0], offset[1]);
+        }
+
     private:
-        std::vector<Type> m_Data;
+        std::vector<Type, Alloc> m_Data;
         HVector2UI m_Size;
     };
 
+    template<typename Type>
+    using AlignedArray2D = Array2D<Type, HAlignedAllocator<Type>>;
+
+#ifdef ALIGNED_ARRAY2D
+    typedef AlignedArray2D<HReal> Array2DF;
+    typedef AlignedArray2D<HVector2> Array2D2F;
+    typedef AlignedArray2D<HVector3> Array2D3F;
+    typedef AlignedArray2D<HVector4> Array2D4F;
+#else
     typedef Array2D<HReal> Array2DF;
     typedef Array2D<HVector2> Array2D2F;
     typedef Array2D<HVector3> Array2D3F;
     typedef Array2D<HVector4> Array2D4F;
-
+#endif
 
 } // namespace Utility

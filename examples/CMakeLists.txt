@@ -55,15 +55,18 @@ if(${ENABLE_EROISON_EXAMPLE})
 set(EROISON_EXAMPLE EroisonExample)
 file(GLOB EROISON_EXAMPLE_SOURCE_FILES
     FastNoiseLite.h
-    erosionExample.cpp
+    ErosionExample.cpp
 )
 add_executable(${EROISON_EXAMPLE} ${EROISON_EXAMPLE_SOURCE_FILES})
 find_package(Eigen3 CONFIG REQUIRED)
 find_package(GLUT REQUIRED)
 
-target_include_directories(${EROISON_EXAMPLE} PUBLIC ./include
+target_include_directories(${EROISON_EXAMPLE} PUBLIC 
+./include
+./
     PRIVATE 
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/example
 )
 target_link_libraries(${EROISON_EXAMPLE} PRIVATE
     Eigen3::Eigen

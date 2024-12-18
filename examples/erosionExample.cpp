@@ -4,15 +4,16 @@
 #include <Math/Visual/ImageUtils.h>
 #include <Math/Parallel.h>
 #include <fstream>
+#include <Math/Procedural/HydraulicErosion.h>
 
 #define SAVE_IMAGE 1
 #define SAVE_MESH 1
-#define PARTICLE_BASE 0
+#define PARTICLE_BASE 1
 
 using namespace MathLib;
 
 const HReal cellSize = 1.f;
-const HVector2I size(512, 512);
+const HVector2I size(256, 256);
 int SEED = 10;
 std::chrono::milliseconds tickLength = std::chrono::milliseconds(1000);
 bool updated = false;
@@ -20,8 +21,8 @@ bool updated = false;
 const HReal scale = 6.0;
 
 bool active = false;
-int remaining = 200000;
-uint32_t erosionstep = 1000;
+int remaining = 50000;
+uint32_t erosionstep = 10000;
 
 const HReal dt = 1.2;
 const HReal density = 1.0;
@@ -50,53 +51,42 @@ struct Particle
     HReal m_Sediment = 0.0;
 };
 
-void Erode(Array2D<HReal> &heightmap, Array2D<HVector3> &normals, int cycles)
+HVector3 GetNormal(const Array2D<HReal> &heightMap, int x, int y)
 {
+    HReal heightL = heightMap(x - 1, y);
+    HReal heightR = heightMap(x + 1, y);
+    HReal heightU = heightMap(x, y - 1);
+    HReal heightD = heightMap(x, y + 1);
+    HReal normalX = heightR - heightL;
+    HReal normalY = heightD - heightU;
+    HVector3 normal(normalX, 0.5f * cellSize, normalY);
+    normal.norm();
+    return normal;
+}
 
-    /*
-      Note: Everything is properly scaled by a time step-size "dt"
-    */
-
-    // Do a series of iterations! (5 Particles)
+void Erode(Array2D<HReal> &heightmap, int cycles)
+{
     for (int i = 0; i < cycles; i++)
     {
-
-        // Spawn New Particle
         HVector2 newpos = HVector2(rand() % (int)size[0], rand() % (int)size[1]);
         Particle drop(newpos);
 
-        // As long as the droplet exists...
         while (drop.m_Volume > minVol)
         {
 
             HVector2I ipos = HVector2I(drop.m_Pos[0], drop.m_Pos[1]); // Floored Droplet Initial Position
-            HVector3 n = normals(ipos[0], ipos[1]);                   // Surface Normal at Position
-
-            // Accelerate particle using newtonian mechanics using the surface normal.
-            drop.m_Speed += dt * HVector2(n[0], n[2]) * scale / (drop.m_Volume * density); // F = ma, so a = F/m
+            HVector3 n = GetNormal(heightmap, ipos[0], ipos[1]);                   // Surface Normal at Position
+            drop.m_Speed += dt * HVector2(n[0], n[2]) * scale / (drop.m_Volume * density);
             drop.m_Pos += dt * drop.m_Speed;
             drop.m_Speed *= (1.0 - dt * friction); // Friction Factor
-
-            /*
-              Note: For multiplied factors (e.g. friction, evaporation)
-              time-scaling is correctly implemented like above.
-            */
-
-            // Check if Particle is still in-bounds
             if (drop.m_Pos[0] < 0 || drop.m_Pos[0] >= size[0] || drop.m_Pos[1] < 0 || drop.m_Pos[1] >= size[1])
                 break;
-
-            // Compute sediment capacity difference
             HReal maxsediment = drop.m_Volume * (drop.m_Speed.norm()) * (heightmap(ipos[0], ipos[1]) - heightmap((int)drop.m_Pos[0], (int)drop.m_Pos[1]));
             if (maxsediment < 0.0)
                 maxsediment = 0.0;
             HReal sdiff = maxsediment - drop.m_Sediment;
-
-            // Act on the Heightmap and Droplet!
             drop.m_Sediment += dt * depositionRate * sdiff;
             heightmap(ipos[0], ipos[1]) -= dt * drop.m_Volume * depositionRate * sdiff;
-
-            // Evaporate the Droplet (Note: Proportional to Volume! Better: Use shape factor to make proportional to the area instead.)
             drop.m_Volume *= (1.0 - dt * evapRate);
         }
     }
@@ -309,7 +299,7 @@ void main()
     {
         for (int x = 0; x < size[0]; x++)
         {
-            heightMap(x, y) = noiseGenerator.GetNoise((HReal)x, (HReal)y) * 0.5;
+            heightMap(x, y) = noiseGenerator.GetNoise((HReal)x, (HReal)y) * 0.25f  + 1;
         }
     }
 #if SAVE_IMAGE
@@ -319,19 +309,37 @@ void main()
 #if SAVE_MESH
     SaveHeightMesh("pre.obj", heightMap);
 #endif
-    Array2D<HVector3> normals = ComputeNormals(heightMap);
+    //Array2D<HVector3> normals = ComputeNormals(heightMap);
 
 #if PARTICLE_BASE
+#if 0
     while (remaining > 0)
     {
-        Erode(heightMap, normals, erosionstep);
+        Erode(heightMap, erosionstep);
         remaining -= erosionstep;
         printf("Remaining: %d\n", remaining);
 #if SAVE_IMAGE
         SaveHeightMap("eroding.png", heightMap);
 #endif
     }
+#else
+    MathLib::Procedural::HydraulicErosion::Params params;
 
+    MathLib::Procedural::HydraulicErosion erosion(heightMap, params);
+    std::vector<MathLib::HReal> heights = heightMap.GetData();
+
+    while (remaining > 0)
+    {
+        erosion.Erode(erosionstep);
+        heightMap = erosion.Result();
+
+        remaining -= erosionstep;
+        printf("Remaining: %d\n", remaining);
+#if SAVE_IMAGE
+        SaveHeightMap("eroding.png", heightMap);
+#endif
+    }
+#endif
 #else
 
     Array2D<HReal> preSediment;

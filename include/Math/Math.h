@@ -16,7 +16,7 @@ namespace MathLib
 #endif
 
 	template <typename Type, int N>
-	using HVector = Eigen::Matrix<Type, N, 1>;
+	using HVector = Eigen::Matrix<Type, N, 1 >;
 
 	template <int N>
 	using HVectorR = HVector<HReal, N>;
@@ -70,6 +70,9 @@ namespace MathLib
 	typedef HTransform<2> HTransform2;
 	typedef HTransform<3> HTransform3;
 	typedef HTransform<Eigen::Dynamic> HTransformX;
+
+	template <typename T>
+	using HAlignedAllocator = Eigen::aligned_allocator<T>;
 
 	template <typename target_ptr, typename source>
 	inline target_ptr smart_cast(source *s)
